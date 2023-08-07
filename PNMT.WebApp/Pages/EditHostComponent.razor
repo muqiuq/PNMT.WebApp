@@ -51,7 +51,7 @@
     {
         if(Id.HasValue)
         {
-            hostForm = (await _PNTMDApi.GetHost(Id.Value)).MapPropertiesTo<HostPoco, HostForm>();
+            hostForm = (await _PNTMDApi.Hosts.Get(Id.Value)).MapPropertiesTo<HostPoco, HostForm>();
         }
 
         await base.OnInitializedAsync();
@@ -61,12 +61,12 @@
     {
         if(Id.HasValue)
         {
-            await _PNTMDApi.SaveHost(hostForm.MapPropertiesTo<HostForm, HostPoco>());
+            await _PNTMDApi.Hosts.Update(hostForm.MapPropertiesTo<HostForm, HostPoco>());
             navigationManager.NavigateTo("/hosts");
         }
         else
         {
-            await _PNTMDApi.AddHost(hostForm.MapPropertiesTo<HostForm, HostPoco>());
+            await _PNTMDApi.Hosts.AddNew(hostForm.MapPropertiesTo<HostForm, HostPoco>());
             navigationManager.NavigateTo("/hosts");
         }
     }

@@ -1,0 +1,70 @@
+﻿@using Microsoft.AspNetCore.Mvc;
+@using PNMT.WebApp.Data;
+@typeparam TItem
+
+@if(Editing)
+{
+    <div class="row g-3 align-items-center">
+        <div class="col-auto">
+            @if(InputType == "checkbox")
+            {
+                <input class="@CssClass" @bind="Value" type="@InputType" checked="@Value" />
+            }
+            else
+            {
+                <input class="@CssClass" @bind="Value" type="@InputType" />
+            }
+        </div>
+        <div class="col-auto">
+            <a @onclick:preventDefault=true @onclick=ToggleEdit><i class="icon-base bi bi-save-fill"></i></a>
+        </div>
+    </div>
+}
+else
+{
+    @Value
+
+    <span style="width: 10px;"></span>
+
+    <a @onclick:preventDefault=true @onclick=ToggleEdit><i class="icon-base bi bi-pencil-fill"></i></a>
+}
+
+@code {
+    public bool Editing { get; set; } = false;
+
+    [Parameter]
+    public string InputType { get; set; } = "text";
+
+    private string CssClass { get
+        {
+            if (InputType == "checkbox") return "form-check-input";
+            return "form-control";
+        }
+    }
+
+    [Parameter]
+    public object Entity { get; set; }
+
+    [Parameter]
+    public TItem Value { get; set; }
+
+    [Parameter]
+    public EventCallback<TItem> ValueChanged { get; set; }
+
+    private async void ToggleEdit()
+    {
+        if(this.Editing)
+        {
+            await ValueUpdated();
+        }
+
+        this.Editing = !this.Editing;
+    }
+
+    private async Task ValueUpdated()
+    {
+        await ValueChanged.InvokeAsync(Value);
+        if (Entity != null) Entity.Update();
+    }
+
+}

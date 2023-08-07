@@ -39,6 +39,8 @@ namespace PNMT.WebApp
             app.MapBlazorHub();
             app.MapFallbackToPage("/_Host");
 
+            Global.WebApp = app;
+
             app.Run();
         }
     }

@@ -1,4 +1,5 @@
 ﻿@page "/host/{Id:guid}"
+@using PNMT.WebApp.Components
 @using PNMT.WebApp.Data;
 @using PNMT.WebApp.Models.Forms;
 @using PNMTD.Lib.Helper;
@@ -11,7 +12,7 @@
 <div class="container">
     <div class="row" style="margin-bottom: 20px;">
         <div class="col">
-            <h3>Host - <b>@hostForm.Name</b></h3>
+            <h3>Host - <b>@hostPoco.Name</b></h3>
         </div>
     </div>
     <div class="row">
@@ -23,23 +24,27 @@
                 <tbody>
                     <tr>
                         <td>Enabled</td>
-                        <td>@hostForm.Enabled</td>
+                        <td><EditableTextComponent TItem="bool" InputType="checkbox" @bind-Value="@hostPoco.Enabled"></EditableTextComponent></td>
                     </tr>
                     <tr>
                         <td>Id</td>
-                        <td>@hostForm.Id</td>
+                        <td>@hostPoco.Id</td>
                     </tr>
                     <tr>
                         <td>Name</td>
-                        <td><b>@hostForm.Name</b></td>
+                        <td><b><EditableTextComponent Entity="@hostPoco" TItem="string" @bind-Value="@hostPoco.Name"></EditableTextComponent></b></td>
                     </tr>
                     <tr>
                         <td>Location</td>
-                        <td>@hostForm.Location</td>
+                        <td><EditableTextComponent Entity="@hostPoco" TItem="string" @bind-Value="@hostPoco.Location"></EditableTextComponent></td>
+                    </tr>
+                    <tr>
+                        <td>Notes</td>
+                        <td><EditableTextComponent Entity="@hostPoco" TItem="string" @bind-Value="@hostPoco.Notes"></EditableTextComponent></td>
                     </tr>
                     <tr>
                         <td>Created</td>
-                        <td>@hostForm.Created</td>
+                        <td>@hostPoco.Created</td>
                     </tr>
                 </tbody>
             </table>
@@ -75,22 +80,22 @@
     [Parameter]
     public Guid Id { get; set; }
 
-    public HostForm hostForm = new HostForm();
+    public HostPoco hostPoco = new HostPoco();
 
     public HostStatePoco hostStatePoco = new HostStatePoco();
 
     protected override async Task OnInitializedAsync()
     {
-        hostForm = (await _PNTMDApi.GetHost(Id)).MapPropertiesTo<HostPoco, HostForm>();
+        hostPoco = (await _PNTMDApi.Hosts.Get(Id));
 
-        hostStatePoco = (await _PNTMDApi.GetHostWithSensors(Id));
+        hostStatePoco = (await _PNTMDApi.Hosts.GetHostWithSensors(Id));
 
         await base.OnInitializedAsync();
     }
 
     private async void DeleteHost()
     {
-        await _PNTMDApi.DeleteHost(Id);
+        await _PNTMDApi.Hosts.Delete(Id);
 
         navigationManager.NavigateTo("/hosts");
     }

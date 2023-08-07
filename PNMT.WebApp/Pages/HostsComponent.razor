@@ -28,13 +28,12 @@
             @foreach (var host in Hosts)
             {
                 <tr>
-                    <th scope="row">@host.Name</th>
+                    <th scope="row"><a href="/host/@host.Id">@host.Name</a></th>
                     <td>@host.Location</td>
                     <td>@host.Created</td>
                     <td>@host.Id</td>
                     <td>
                         <a href="/host/@host.Id">View</a>
-                        <a href="/host/edit/@host.Id">Edit</a>
                     </td>
                 </tr>
             }
@@ -60,7 +59,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        Hosts = (await _PNTMDApi.GetHosts()).Select(x => x.MapPropertiesTo<HostPoco, HostForm>()).ToList();
+        Hosts = (await _PNTMDApi.Hosts.GetAll()).Select(x => x.MapPropertiesTo<HostPoco, HostForm>()).ToList();
 
         await base.OnInitializedAsync();
     }

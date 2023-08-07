@@ -4,6 +4,7 @@
 @using PNMTD.Lib.Helper;
 @using PNMTD.Lib.Models.Poco;
 @using PNMTD.Models.Poco;
+@using PNMT.WebApp.Components
 @inject NavigationManager navigationManager
 @inject PNMTDApi _PNTMDApi
 
@@ -40,11 +41,11 @@ else
                     </tr>
                     <tr>
                         <td>Name</td>
-                        <td><b>@sensorPoco.Name</b></td>
+                        <td><b><EditableTextComponent Entity="@sensorPoco" TItem="string" @bind-Value="@sensorPoco.Name"></EditableTextComponent></b></td>
                     </tr>
                     <tr>
                         <td>TextId</td>
-                        <td><b>@sensorPoco.TextId</b></td>
+                            <td><b><EditableTextComponent Entity="@sensorPoco" TItem="string" @bind-Value="@sensorPoco.TextId"></EditableTextComponent></b></td>
                     </tr>
                         <tr>
                             <td>Type</td>
@@ -52,11 +53,11 @@ else
                         </tr>
                     <tr>
                         <td>Grace period</td>
-                        <td>@sensorPoco.GracePeriod</td>
+                            <td><EditableTextComponent Entity="@sensorPoco" TItem="int" @bind-Value="@sensorPoco.GracePeriod"></EditableTextComponent></td>
                     </tr>
                     <tr>
                         <td>Interval</td>
-                        <td>@sensorPoco.Interval</td>
+                            <td><EditableTextComponent Entity="@sensorPoco" TItem="int" @bind-Value="@sensorPoco.Interval"></EditableTextComponent></td>
                     </tr>
                     <tr>
                         <td>Parent (Host)</td>
@@ -80,7 +81,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        sensorPoco = (await _PNTMDApi.GetSensor(Id));
+        sensorPoco = (await _PNTMDApi.Sensors.Get(Id));
 
         await base.OnInitializedAsync();
     }
