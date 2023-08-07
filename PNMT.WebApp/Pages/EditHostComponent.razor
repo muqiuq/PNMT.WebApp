@@ -1,0 +1,73 @@
+﻿@page "/host/new"
+@page "/host/edit/{Id:guid}"
+@inject ILogger<EditHostComponent> Logger
+@using PNMT.WebApp.Data;
+@using PNMT.WebApp.Models.Forms;
+@using PNMTD.Lib.Helper;
+@using PNMTD.Lib.Models.Poco;
+@inject NavigationManager navigationManager
+@inject PNMTDApi _PNTMDApi
+
+
+<h3>@Title</h3>
+
+<EditForm Model="@hostForm" OnValidSubmit="@HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="form-check">
+        <label>
+            Enabled
+        </label>
+        <InputCheckbox class="form-check-input" @bind-Value="hostForm.Enabled" />
+    </div>
+    
+    <div class="form-group">
+        <label>Name:</label>
+        <InputText class="form-control" @bind-Value="hostForm.Name" />
+    </div>
+    
+    <div class="form-group">
+        <label>Location:</label>
+        <InputText class="form-control" @bind-Value="hostForm.Location" />
+    </div>
+    <div style="margin-top: 20px">
+        <button class="btn btn-primary" type="submit">@( Id == null ? "Add" : "Save" )</button>
+    </div>
+</EditForm>
+
+
+
+@code {
+
+    [Parameter]
+    public Guid? Id { get; set; }
+
+    public HostForm hostForm = new HostForm();
+
+    public string Title => Id == null ? "Add Host" : "Edit Host";
+
+    protected override async Task OnInitializedAsync()
+    {
+        if(Id.HasValue)
+        {
+            hostForm = (await _PNTMDApi.GetHost(Id.Value)).MapPropertiesTo<HostPoco, HostForm>();
+        }
+
+        await base.OnInitializedAsync();
+    }
+
+    private async void HandleValidSubmit()
+    {
+        if(Id.HasValue)
+        {
+            await _PNTMDApi.SaveHost(hostForm.MapPropertiesTo<HostForm, HostPoco>());
+            navigationManager.NavigateTo("/hosts");
+        }
+        else
+        {
+            await _PNTMDApi.AddHost(hostForm.MapPropertiesTo<HostForm, HostPoco>());
+            navigationManager.NavigateTo("/hosts");
+        }
+    }
+}

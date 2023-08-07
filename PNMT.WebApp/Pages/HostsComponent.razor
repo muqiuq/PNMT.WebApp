@@ -1,0 +1,87 @@
+﻿@page "/hosts"
+@implements IAsyncDisposable
+@using PNMT.WebApp.Data;
+@using PNMT.WebApp.Models.Forms;
+@using PNMTD.Lib.Helper;
+@using PNMTD.Lib.Models.Poco;
+@inject IJSRuntime JS
+@inject NavigationManager navigationManager
+@inject PNMTDApi _PNTMDApi
+
+<h3>Hosts</h3>
+
+<p><a href="/host/new">Add Host</a></p>
+
+@if(Hosts.Any())
+{
+    <table class="table table-dark" id="hoststable">
+        <thead>
+            <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Location</th>
+                <th scope="col">Created</th>
+                <th scope="col">Id</th>
+                <th scope="col"></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var host in Hosts)
+            {
+                <tr>
+                    <th scope="row">@host.Name</th>
+                    <td>@host.Location</td>
+                    <td>@host.Created</td>
+                    <td>@host.Id</td>
+                    <td>
+                        <a href="/host/@host.Id">View</a>
+                        <a href="/host/edit/@host.Id">Edit</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>Loading...</p>
+}
+
+@code {
+    List<HostForm> Hosts = new List<HostForm>();
+
+    private Task<IJSObjectReference> _module;
+    private Task<IJSObjectReference> Module
+    {
+        get
+        {
+            return _module ??= JS.InvokeAsync<IJSObjectReference>("import", new string[] { "./js/datatable.interop.js" }).AsTask();
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Hosts = (await _PNTMDApi.GetHosts()).Select(x => x.MapPropertiesTo<HostPoco, HostForm>()).ToList();
+
+        await base.OnInitializedAsync();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var module = await Module;
+            await module.InvokeVoidAsync("attachDataTable", "#hoststable");
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_module != null)
+        {
+            var module = await Module;
+            await module.InvokeVoidAsync("detachDataTable");
+            await module.DisposeAsync();
+        }
+    }
+
+}

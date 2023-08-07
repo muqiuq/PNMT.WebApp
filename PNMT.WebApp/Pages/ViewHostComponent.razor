@@ -1,0 +1,97 @@
+﻿@page "/host/{Id:guid}"
+@using PNMT.WebApp.Data;
+@using PNMT.WebApp.Models.Forms;
+@using PNMTD.Lib.Helper;
+@using PNMTD.Lib.Models.Poco;
+@inject NavigationManager navigationManager
+@inject PNMTDApi _PNTMDApi
+
+
+
+<div class="container">
+    <div class="row" style="margin-bottom: 20px;">
+        <div class="col">
+            <h3>Host - <b>@hostForm.Name</b></h3>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <p><a href="" @onclick=DeleteHost @onclick:preventDefault>Delete</a></p>
+            <table class="table table-bordered table-hover">
+                <thead>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Enabled</td>
+                        <td>@hostForm.Enabled</td>
+                    </tr>
+                    <tr>
+                        <td>Id</td>
+                        <td>@hostForm.Id</td>
+                    </tr>
+                    <tr>
+                        <td>Name</td>
+                        <td><b>@hostForm.Name</b></td>
+                    </tr>
+                    <tr>
+                        <td>Location</td>
+                        <td>@hostForm.Location</td>
+                    </tr>
+                    <tr>
+                        <td>Created</td>
+                        <td>@hostForm.Created</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="col">
+            <h4>Sensors</h4>
+            <table class="table table-bordered table-hover">
+                <thead>
+                </thead>
+                    <tr>
+                        <th scope="col">Name</th>
+                        <th scope="col">State</th>
+                        <th scope="col">Code</th>
+                        <th scope="col">Msg</th>
+                    </tr>
+                <tbody>
+                    @foreach(var sensor in hostStatePoco.Sensors) 
+                    {
+                    <tr>
+                        <td><a href="/sensor/@sensor.Id">@sensor.Name</a></td>
+                        <td>@sensor.IsSuccess</td>
+                        <td>@sensor.LastCode</td>
+                        <td>@sensor.LastMessage</td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public Guid Id { get; set; }
+
+    public HostForm hostForm = new HostForm();
+
+    public HostStatePoco hostStatePoco = new HostStatePoco();
+
+    protected override async Task OnInitializedAsync()
+    {
+        hostForm = (await _PNTMDApi.GetHost(Id)).MapPropertiesTo<HostPoco, HostForm>();
+
+        hostStatePoco = (await _PNTMDApi.GetHostWithSensors(Id));
+
+        await base.OnInitializedAsync();
+    }
+
+    private async void DeleteHost()
+    {
+        await _PNTMDApi.DeleteHost(Id);
+
+        navigationManager.NavigateTo("/hosts");
+    }
+}
