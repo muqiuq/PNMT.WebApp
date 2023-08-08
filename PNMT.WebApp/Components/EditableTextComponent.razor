@@ -1,4 +1,5 @@
 ﻿@using Microsoft.AspNetCore.Mvc;
+@using Microsoft.AspNetCore.Mvc.Rendering;
 @using PNMT.WebApp.Data;
 @typeparam TItem
 
@@ -10,9 +11,13 @@
             {
                 <input class="@CssClass" @bind="Value" type="@InputType" checked="@Value" />
             }
-            else
+            @if (InputType == "text")
             {
-                <input class="@CssClass" @bind="Value" type="@InputType" />
+                <input class="@CssClass" @bind="Value" type="@InputType" @bind:event="oninput" @onkeydown="OnKeyDown" />
+            }
+            @if (InputType == "select")
+            {
+                <SelectComponent @bind-Value="Value"></SelectComponent>
             }
         </div>
         <div class="col-auto">
@@ -23,9 +28,7 @@
 else
 {
     @Value
-
     <span style="width: 10px;"></span>
-
     <a @onclick:preventDefault=true @onclick=ToggleEdit><i class="icon-base bi bi-pencil-fill"></i></a>
 }
 
@@ -38,9 +41,12 @@ else
     private string CssClass { get
         {
             if (InputType == "checkbox") return "form-check-input";
+            if (InputType == "select") return "form-select";
             return "form-control";
         }
     }
+
+    List<SelectListItem> Options = new List<SelectListItem>();
 
     [Parameter]
     public object Entity { get; set; }
@@ -50,6 +56,27 @@ else
 
     [Parameter]
     public EventCallback<TItem> ValueChanged { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (typeof(TItem).IsEnum)
+        {
+            Enum.GetNames(typeof(TItem)).ToList().ForEach(x =>
+            {
+                Options.Add(new SelectListItem() { Text = x, Value = x });
+            });
+        }
+
+        await base.OnInitializedAsync();
+    }
+
+    private async void OnKeyDown(KeyboardEventArgs args)
+    {
+        if(args.Key == "Enter")
+        {
+            ToggleEdit();
+        }
+    }
 
     private async void ToggleEdit()
     {
@@ -66,5 +93,4 @@ else
         await ValueChanged.InvokeAsync(Value);
         if (Entity != null) Entity.Update();
     }
-
 }

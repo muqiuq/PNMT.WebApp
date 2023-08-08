@@ -1,0 +1,37 @@
+﻿@using Microsoft.AspNetCore.Mvc.Rendering;
+@typeparam TItem
+
+<select class="form-select" @bind="Value" @bind:after="ValueUpdated">
+    @foreach (var item in Options)
+    {
+        <option value="@item.Value">@item.Text</option>
+    }
+</select>
+
+@code {
+    [Parameter]
+    public TItem Value { get; set; }
+
+    [Parameter]
+    public EventCallback<TItem> ValueChanged { get; set; }
+
+    List<SelectListItem> Options = new List<SelectListItem>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (typeof(TItem).IsEnum)
+        {
+            Enum.GetNames(typeof(TItem)).ToList().ForEach(x =>
+            {
+                Options.Add(new SelectListItem() { Text = x, Value = x });
+            });
+        }
+
+        await base.OnInitializedAsync();
+    }
+
+    private async Task ValueUpdated()
+    {
+        await ValueChanged.InvokeAsync(Value);
+    }
+}
