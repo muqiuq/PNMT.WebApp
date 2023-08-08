@@ -1,0 +1,19 @@
+﻿@Value
+
+@code {
+    [Parameter]
+    public DateTime Moment { get; set; }
+
+    public String Value
+    {
+        get
+        {
+            var diff = DateTime.Now - Moment;
+            if (diff < TimeSpan.FromMinutes(120)) return $"since {(int)diff.TotalMinutes} min";
+            if (diff < TimeSpan.FromHours(24)) return $"since {(int)diff.TotalHours} h";
+            if (diff < TimeSpan.FromDays(3)) return $"since {(int)diff.TotalDays} d {(int)diff.TotalHours % 24} h";
+            return Moment.ToString();
+        }
+    }
+
+}

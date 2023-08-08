@@ -12,5 +12,10 @@ namespace PNMT.WebApp.Data.Entities
         {
             return await httpClient.GetFromJsonAsync<HostStatePoco>($"/hosts/{Id}");
         }
+
+        public async Task<List<HostStatePoco>> GetAllHostsWithSensors()
+        {
+            return await httpClient.GetFromJsonAsync<List<HostStatePoco>>($"/hosts");
+        }
     }
 }

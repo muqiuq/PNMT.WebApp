@@ -11,164 +11,219 @@
 @inject PNMTDApi _PNTMDApi
 
 
-@if(sensorPoco == null)
+@if (sensorPoco == null)
 {
-    <p>Loading...</p>
+  <p>Loading...</p>
 }
 else
 {
-<div class="container">
+  <div class="container">
     <div class="row" style="margin-bottom: 20px;">
-        <div class="col">
-            <h3>Sensor - <b>@sensorPoco.Name</b></h3>
-        </div>
+      <div class="col">
+        <h3>Sensor - <b>@sensorPoco.Name</b></h3>
+      </div>
     </div>
     <div class="row">
-        <div class="col">
-            <table class="table table-bordered table-hover">
-                <thead>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Parent (Host)</td>
-                        <td><a href="/host/@sensorPoco.ParentId">View</a></td>
-                    </tr>
-                    <tr>
-                        <td>Enabled</td>
-                        <td>@sensorPoco.Enabled</td>
-                    </tr>
-                    <tr>
-                        <td>Id</td>
-                        <td>@sensorPoco.Id</td>
-                    </tr>
-                    <tr>
-                        <td>Created</td>
-                        <td>@sensorPoco.Created</td>
-                    </tr>
-                    <tr>
-                        <td>Name</td>
-                        <td><b><EditableTextComponent Entity="@sensorPoco" TItem="string" @bind-Value="@sensorPoco.Name"></EditableTextComponent></b></td>
-                    </tr>
-                    <tr>
-                        <td>TextId</td>
-                            <td><b><EditableTextComponent Entity="@sensorPoco" TItem="string" @bind-Value="@sensorPoco.TextId"></EditableTextComponent></b></td>
-                    </tr>
-                        <tr>
-                            <td>Type</td>
-                            <td><b><EditableTextComponent InputType="select" Entity="@sensorPoco" TItem="SensorType" @bind-Value="@sensorPoco.Type"></EditableTextComponent></b></td>
-                        </tr>
-                    <tr>
-                        <td>Grace period</td>
-                            <td><EditableTextComponent Entity="@sensorPoco" TItem="int" @bind-Value="@sensorPoco.GracePeriod"></EditableTextComponent></td>
-                    </tr>
-                    <tr>
-                        <td>Interval</td>
-                            <td><EditableTextComponent Entity="@sensorPoco" TItem="int" @bind-Value="@sensorPoco.Interval"></EditableTextComponent></td>
-                    </tr>
-                    <tr>
-                        <td>Parameters</td>
-                        <td><EditableTextComponent Entity="@sensorPoco" TItem="string" @bind-Value="@sensorPoco.Parameters"></EditableTextComponent></td>
-                    </tr>
-                </tbody>
-            </table>
-            <table class="table table-bordered table-hover">
-                <tbody>
-                    <tr>
-                        <td>BaseUrl:</td>
-                        <td>@_PNTMDApi.GetSensorEventUrl(sensorPoco)</td>
-                    </tr>
-                    <tr>
-                        <td>Template</td>
-                        <td>@(_PNTMDApi.GetSensorEventUrl(sensorPoco, "code", "msg"))</td>
-                    </tr>
-                    <tr>
-                        <td>Example:</td>
-                        <td>@(_PNTMDApi.GetSensorEventUrl(sensorPoco, "200", "Hello"))</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-        <div class="col">
-            <h3>Subscribed notification rules</h3>
-                @if(notificationRulesForSensor != null)
+      <div class="col-lg-6 mb-4">
+      <BigCardComp Title="Properties">
+        <table class="table table-bordered table-hover">
+          <thead>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Parent (Host)</td>
+              <td><a href="/host/@sensorPoco.ParentId">View</a></td>
+            </tr>
+            <tr>
+              <td>Enabled</td>
+                <td><EditableTextComponent Entity="@sensorPoco" TItem="bool" InputType="checkbox" @bind-Value="@sensorPoco.Enabled"></EditableTextComponent></td>
+            </tr>
+            <tr>
+              <td>Id</td>
+              <td>@sensorPoco.Id</td>
+            </tr>
+            <tr>
+              <td>Created</td>
+              <td>@sensorPoco.Created</td>
+            </tr>
+            <tr>
+              <td>Name</td>
+              <td><b><EditableTextComponent Entity="@sensorPoco" TItem="string" @bind-Value="@sensorPoco.Name"></EditableTextComponent></b></td>
+            </tr>
+            <tr>
+              <td>TextId</td>
+              <td><b><EditableTextComponent Entity="@sensorPoco" TItem="string" @bind-Value="@sensorPoco.TextId"></EditableTextComponent></b></td>
+            </tr>
+            <tr>
+              <td>Type</td>
+              <td><b><EditableTextComponent InputType="select" Entity="@sensorPoco" TItem="SensorType" @bind-Value="@sensorPoco.Type"></EditableTextComponent></b></td>
+            </tr>
+            <tr>
+              <td>Grace period</td>
+              <td><EditableTextComponent Entity="@sensorPoco" TItem="int" @bind-Value="@sensorPoco.GracePeriod"></EditableTextComponent></td>
+            </tr>
+            <tr>
+              <td>Interval</td>
+              <td><EditableTextComponent Entity="@sensorPoco" TItem="int" @bind-Value="@sensorPoco.Interval"></EditableTextComponent></td>
+            </tr>
+            <tr>
+              <td>Parameters</td>
+              <td><EditableTextComponent Entity="@sensorPoco" TItem="string" @bind-Value="@sensorPoco.Parameters"></EditableTextComponent></td>
+            </tr>
+          </tbody>
+        </table>
+      </BigCardComp>
+      <BigCardComp Title="Sensor URL">
+        <table class="table table-bordered table-hover">
+          <tbody>
+            <tr>
+              <td>BaseUrl:</td>
+              <td>@_PNTMDApi.GetSensorEventUrl(sensorPoco)</td>
+            </tr>
+            <tr>
+              <td>Template</td>
+              <td>@(_PNTMDApi.GetSensorEventUrl(sensorPoco, "code", "msg"))</td>
+            </tr>
+            <tr>
+              <td>Example:</td>
+              <td>@(_PNTMDApi.GetSensorEventUrl(sensorPoco, "200", "Hello"))</td>
+            </tr>
+          </tbody>
+        </table>
+      </BigCardComp>
+      </div>
+      <div class="col">
+        <BigCardComp Title="Subscribed notification rules">
+        @if (notificationRulesForSensor != null)
+        {
+            @if (notificationRulesForSensor.Any())
+            {
+              <ul class="list-group">
+                @foreach (var notificationRule in notificationRulesForSensor)
                 {
-                    <ul class="list-group">
-                        @foreach (var notificationRule in notificationRulesForSensor)
-                        {
-                            <li class="list-group-item">
-                                <a href="notificationrule/edit/@notificationRule.Id">@notificationRule.Name</a>
-                                <a href="" @onclick:preventDefault="true" @onclick="() => DeleteSubscribedNotification(notificationRule)"><i class="icon-base bi bi-trash"></i></a>
-                            </li>
-                        }
-                    </ul>
-                    @if (notificationRulesSelectList.Any())
-                    {
-                        <div class="row" style="margin-top: 20px;">
-                            <div class="col">
-                                <SelectComponent Options="notificationRulesSelectList" @bind-Value="@SelectedNewNotificationRule"></SelectComponent>
-                            </div>
-                            <div class="col">
-                                <button class="btn btn-primary" disabled="@linkNotificationButtonDisabled" @onclick="LinkNotificationRule">Link Notification</button>
-                            </div>
-                        </div>
-                    }
+                  <li class="list-group-item">
+                    <a href="notificationrule/edit/@notificationRule.Id">@notificationRule.Name</a>
+                    <a href="" @onclick:preventDefault="true" @onclick="() => DeleteSubscribedNotification(notificationRule)"><i class="icon-base bi bi-trash"></i></a>
+                  </li>
                 }
+              </ul>
+            }
+            else
+            {
+              <p><i>No notification rules linked</i></p>
+            }
+            @if (notificationRulesSelectList.Any())
+          {
+            <div class="row" style="margin-top: 20px;">
+              <div class="col">
+                <SelectComponent Options="notificationRulesSelectList" @bind-Value="@SelectedNewNotificationRule"></SelectComponent>
+              </div>
+              <div class="col">
+                <button class="btn btn-primary" disabled="@linkNotificationButtonDisabled" @onclick="LinkNotificationRule">Link Notification</button>
+              </div>
             </div>
+          }
+        }
+        </BigCardComp>
+        <BigCardComp Title="Events">
+        @if (eventEntities != null)
+        {
+          <table class="table table-hover table-striped">
+            <thead class="thead-sm">
+              <tr>
+                <th>#</th>
+                <th>time of event</th>
+                <th>code</th>
+                <th>msg</th>
+              </tr>
+            </thead>
+            <tbody>
+              @foreach (var e in eventEntities)
+              {
+                <tr>
+                  <td>
+                    @if (e.IsSuccess)
+                    {
+                        <i class="bi bi-check-circle-fill text-success"></i>
+                    }
+                    else
+                    {
+                        <i class="bi bi-x-circle-fill text-danger"></i>
+                    }
+                    
+                  </td>
+                    <td>@e.Created</td>
+                  <td>@e.StatusCode</td>
+                  <td>@e.Message</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        }
+        else
+        {
+          <p>Loading...</p>
+        }
+        </BigCardComp>
+      </div>
     </div>
-</div>
+  </div>
 }
 
 @code {
-    [Parameter]
-    public Guid Id { get; set; }
+  [Parameter]
+  public Guid Id { get; set; }
 
-    public SensorPoco sensorPoco { get; set; }
+  public SensorPoco sensorPoco { get; set; }
 
-    public List<NotificationRulePoco> notificationRulesForSensor = new List<NotificationRulePoco>();
+  public List<NotificationRulePoco> notificationRulesForSensor = new List<NotificationRulePoco>();
 
-    public List<SelectListItem> notificationRulesSelectList = new List<SelectListItem>();
+  public List<SelectListItem> notificationRulesSelectList = new List<SelectListItem>();
 
-    public string? SelectedNewNotificationRule;
+  public List<EventEntityPoco> eventEntities = null;
 
-    public bool linkNotificationButtonDisabled = false;
+  public string? SelectedNewNotificationRule;
 
-    protected override async Task OnInitializedAsync()
+  public bool linkNotificationButtonDisabled = false;
+
+  protected override async Task OnInitializedAsync()
+  {
+    sensorPoco = (await _PNTMDApi.Sensors.Get(Id));
+
+    notificationRulesSelectList.Add(new SelectListItem() { Text = "Please select", Value = "" });
+    notificationRulesSelectList.AddRange((await _PNTMDApi.NotificationRules.GetAll()).Select(x => new SelectListItem() { Text = x.Name, Value = x.Id.ToString() }).ToList());
+
+    eventEntities = (await _PNTMDApi.Events.GetEventsForSensor(sensorPoco.Id)).OrderByDescending(e => e.Created).ToList();
+
+    await Update();
+
+    await base.OnInitializedAsync();
+  }
+
+  private async Task Update()
+  {
+    /*var newNotificationRuleEntries = (await _PNTMDApi.NotificationRules.GetNotificationRulesForSensor(Id));
+    notificationRulesForSensor.RemoveAll(i => !newNotificationRuleEntries.Contains(i));
+    newNotificationRuleEntries.Where(n => !notificationRulesForSensor.Contains(n)).ToList().ForEach(n => notificationRulesForSensor.Add(n));*/
+    notificationRulesForSensor = (await _PNTMDApi.NotificationRules.GetNotificationRulesForSensor(Id));
+    await InvokeAsync(StateHasChanged);
+  }
+
+  private async void DeleteSubscribedNotification(NotificationRulePoco notificationRulePoco)
+  {
+    await _PNTMDApi.NotificationRules.UnlinkSensor(notificationRulePoco.Id, sensorPoco.Id);
+    await Update();
+  }
+
+  private async void LinkNotificationRule()
+  {
+    linkNotificationButtonDisabled = true;
+    if (Guid.TryParse(SelectedNewNotificationRule, out var notificationRuleId) && !notificationRulesForSensor.Where(nrs => nrs.Id == notificationRuleId).Any())
     {
-        sensorPoco = (await _PNTMDApi.Sensors.Get(Id));
-
-        notificationRulesSelectList.Add(new SelectListItem() { Text = "Please select", Value = "" });
-        notificationRulesSelectList.AddRange((await _PNTMDApi.NotificationRules.GetAll()).Select(x => new SelectListItem() { Text = x.Name, Value = x.Id.ToString() }).ToList());
-
-
-        await Update();
-
-        await base.OnInitializedAsync();
+      await _PNTMDApi.NotificationRules.LinkSensor(notificationRuleId, sensorPoco.Id);
+      await Update();
     }
-
-    private async Task Update()
-    {
-        /*var newNotificationRuleEntries = (await _PNTMDApi.NotificationRules.GetNotificationRulesForSensor(Id));
-        notificationRulesForSensor.RemoveAll(i => !newNotificationRuleEntries.Contains(i));
-        newNotificationRuleEntries.Where(n => !notificationRulesForSensor.Contains(n)).ToList().ForEach(n => notificationRulesForSensor.Add(n));*/
-        notificationRulesForSensor = (await _PNTMDApi.NotificationRules.GetNotificationRulesForSensor(Id));
-        await InvokeAsync(StateHasChanged);
-    }
-
-    private async void DeleteSubscribedNotification(NotificationRulePoco notificationRulePoco)
-    {
-        await _PNTMDApi.NotificationRules.UnlinkSensor(notificationRulePoco.Id, sensorPoco.Id);
-        await Update();
-    }
-
-    private async void LinkNotificationRule()
-    {
-        linkNotificationButtonDisabled = true;
-        if (Guid.TryParse(SelectedNewNotificationRule, out var notificationRuleId) && !notificationRulesForSensor.Where(nrs => nrs.Id == notificationRuleId).Any())
-        {
-            await _PNTMDApi.NotificationRules.LinkSensor(notificationRuleId, sensorPoco.Id);
-            await Update();
-        }
-        linkNotificationButtonDisabled = false;
-        await InvokeAsync(StateHasChanged);
-    }
+    linkNotificationButtonDisabled = false;
+    await InvokeAsync(StateHasChanged);
+  }
 }

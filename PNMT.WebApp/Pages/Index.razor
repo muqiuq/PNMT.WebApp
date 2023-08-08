@@ -1,9 +1,119 @@
 ﻿@page "/"
+@using PNMT.WebApp.Data;
+@using PNMTD.Lib.Models.Poco;
+@using PNMT.WebApp.Components.Dashboard;
+@using PNMT.WebApp.Components;
+@inject NavigationManager navigationManager
+@inject PNMTDApi _PNTMDApi
 
-<PageTitle>Index</PageTitle>
+<PageTitle>PNMT</PageTitle>
 
-<h1>Hello, world!</h1>
+<div class="row">
+  <CardDashboardComp IconCss="bi bi-router" Title="Hosts" Value="@NumberOfHosts"></CardDashboardComp>
+  <CardDashboardComp IconCss="bi bi-thermometer-half" Title="Sensors" Value="@NumberOfSensors"></CardDashboardComp>
+  <CardDashboardComp LeftBoarderCss="border-left-danger" TitleCss="text-danger" IconCss="bi bi-x-circle-fill text-danger" Title="Failures" Value="@allHostsWithErrors.Count()"></CardDashboardComp>
+</div>
 
-Welcome to your new app.
+<div class="row">
+  <div class="col-lg-6 mb-4">
+    @foreach (var host in allHostsWithErrors)
+    {
+      <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 font-weight-bold text-danger"><i style="margin-right: 10px; font-size: 1.25rem;" class="bi bi-x-circle-fill text-danger"></i><b>@host.Name</b></h6>
+          <a href="/host/@host.Id" style="line-height:normal;">
+            <i class="icon-pos-fix bi bi-box-arrow-up-right icon-base"></i>
+          </a>
+        </div>
+        <div class="card-body">
+          <table class="table table-bordered table-hover table-striped">
+            <thead class="thead-small">
+              <tr>
+                <th>Name</th>
+                <th>Code</th>
+                <th>Since</th>
+              </tr>
+            </thead>
+            <tbody>
+              @foreach (var sensor in host.Sensors.Where(s => !s.IsSuccess).ToList())
+              {
+                <tr>
+                  <td><i class="bi bi-x-circle-fill text-gray-700 icon-base-some-space"></i><a href="/sensor/@sensor.Id">@sensor.Name</a></td>
+                  <td>@sensor.LastCode</td>
+                  <td><b><SinceComp Moment="@(sensor.Since.Value)"></SinceComp></b></td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    }
+  </div>
+  <div class="col-lg-6 mb-4">
+    <div class="card shadow mb-4">
+      <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+        <h6 class="m-0 font-weight-bold text-primary">
+          <i class="icon-pos-fix bi bi-router"></i><b>Hosts</b>
+        </h6>
+      </div>
+      <div class="card-body">
+        <table class="table table-bordered table-hover table-striped">
+          <thead class="thead-small">
+            <tr>
+              <th>Name</th>
+              <th>Location</th>
+              <th>Sensors</th>
+            </tr>
+          </thead>
+          <tbody>
+            @foreach (var host in allHosts)
+            {
+              <tr>
+                <td><a href="/host/@host.Id">@host.Name</a></td>
+                <td>@host.Location</td>
+                <td>@host.Sensors.Count()</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+
+@code {
+  List<HostStatePoco> allHosts = new List<HostStatePoco>();
+
+  List<HostStatePoco> allHostsWithErrors
+  {
+    get
+    {
+      return allHosts.Where(h => h.State != HostState.Ok).ToList();
+    }
+  }
+
+  int NumberOfHosts
+  {
+    get
+    {
+      return allHosts.Count();
+    }
+  }
+
+  int NumberOfSensors
+  {
+    get
+    {
+      return allHosts.SelectMany(x => x.Sensors).Count();
+    }
+  }
+
+  protected override async Task OnInitializedAsync()
+  {
+    allHosts = (await _PNTMDApi.Hosts.GetAllHostsWithSensors());
+
+    await base.OnInitializedAsync();
+  }
+
+}

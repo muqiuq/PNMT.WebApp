@@ -1,0 +1,28 @@
+﻿<div class="card shadow mb-4">
+<div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+    <h6 class="m-0 font-weight-bold @TitleCss">
+    @if(TitleIcon != null)
+    {
+        <i class="icon-pos-fix @TitleIcon"></i>
+    }
+    <b>@Title</b>
+    </h6>
+</div>
+<div class="card-body">
+    @ChildContent
+</div>
+</div>
+@code {
+  [Parameter]
+  public string Title { get; set; }
+
+  [Parameter]
+  public string? TitleIcon { get; set; }
+
+  [Parameter]
+  public string TitleCss { get; set; } = "";
+
+  [Parameter]
+  public RenderFragment ChildContent { get; set; }
+
+}
