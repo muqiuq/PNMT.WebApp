@@ -1,0 +1,107 @@
+﻿@page "/notificationrule/new"
+@page "/notificationrule/edit/{Id:guid}"
+@inject ILogger<EditNotificationRuleComponent> Logger
+@using PNMT.WebApp.Components;
+@using PNMT.WebApp.Data;
+@using PNMT.WebApp.Models.Forms;
+@using PNMTD.Lib.Helper;
+@using PNMTD.Lib.Models.Poco;
+@inject NavigationManager navigationManager
+@inject PNMTDApi _PNTMDApi
+
+
+<h3>@Title</h3>
+<div class="container">
+    <div class="row" style="margin-bottom: 20px;">
+        <div class="col">
+            <h3>NotificationRule</h3>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <EditForm Model="@notificationRuleForm" OnValidSubmit="@HandleValidSubmit">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+
+                <div class="form-check">
+                    <label>
+                        Enabled
+                    </label>
+                    <InputCheckbox class="form-check-input" @bind-Value="notificationRuleForm.Enabled" />
+                </div>
+
+                <div class="form-group">
+                    <label>Name:</label>
+                    <InputText class="form-control" @bind-Value="notificationRuleForm.Name" />
+                </div>
+
+                <div class="form-group">
+                    <label>Recipient:</label>
+                    <InputText class="form-control" @bind-Value="notificationRuleForm.Recipient" />
+                </div>
+
+                <div class="form-group">
+                    <label>Type:</label>
+                    <SelectComponent @bind-Value="notificationRuleForm.Type"></SelectComponent>
+                </div>
+
+                <div style="margin-top: 20px">
+                    <button class="btn btn-primary" type="submit">@(Id == null ? "Add" : "Save")</button>
+                </div>
+            </EditForm>
+        </div>
+        <div class="col">
+            @if(notificationRulePoco != null)
+            {
+            <h3>Subscripbed by Sensors</h3>
+            <ul class="list-group">
+            @foreach(var sensorId in notificationRulePoco.SubscribedSensors)
+            {
+                <li class="list-group-item"><a href="sensor/@sensorId.ToString()">@sensorId.ToString()</a></li>
+            }
+            </ul>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+
+    [Parameter]
+    public Guid? Id { get; set; }
+
+    public NotificationRuleForm notificationRuleForm = new NotificationRuleForm();
+
+    private NotificationRulePoco notificationRulePoco;
+
+    public string Title => Id == null ? "Add Notification Rule" : "Edit Notification Rule";
+
+    protected override async Task OnInitializedAsync()
+    {
+        if(Id.HasValue)
+        {
+            notificationRulePoco = (await _PNTMDApi.NotificationRules.Get(Id.Value));
+            notificationRuleForm = notificationRulePoco.MapPropertiesTo<NotificationRulePoco, NotificationRuleForm>();
+        }
+
+        await base.OnInitializedAsync();
+    }
+
+    private async void HandleValidSubmit()
+    {
+        if(Id.HasValue)
+        {
+            var updatedNotificationRulePoco = notificationRuleForm.MapPropertiesTo<NotificationRuleForm, NotificationRulePoco>();
+            updatedNotificationRulePoco.SubscribedSensors = notificationRulePoco.SubscribedSensors;
+            await _PNTMDApi.NotificationRules.Update(updatedNotificationRulePoco);
+            navigationManager.NavigateTo("/notificationrules");
+        }
+        else
+        {
+            var newNotificiationRulePoco = notificationRuleForm.MapPropertiesTo<NotificationRuleForm, NotificationRulePoco>();
+            newNotificiationRulePoco.SubscribedSensors = new List<Guid>();
+            await _PNTMDApi.NotificationRules.AddNew(newNotificiationRulePoco);
+            navigationManager.NavigateTo("/notificationrules");
+        }
+    }
+}

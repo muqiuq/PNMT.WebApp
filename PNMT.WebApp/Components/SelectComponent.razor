@@ -15,7 +15,8 @@
     [Parameter]
     public EventCallback<TItem> ValueChanged { get; set; }
 
-    List<SelectListItem> Options = new List<SelectListItem>();
+    [Parameter]
+    public List<SelectListItem> Options { get; set; } = new List<SelectListItem>();
 
     protected override async Task OnInitializedAsync()
     {

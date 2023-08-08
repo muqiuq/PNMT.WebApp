@@ -1,0 +1,93 @@
+﻿@page "/notificationrules"
+@implements IAsyncDisposable
+@using PNMT.WebApp.Components;
+@using PNMT.WebApp.Data;
+@using PNMT.WebApp.Models.Forms;
+@using PNMTD.Lib.Helper;
+@using PNMTD.Lib.Models.Enum;
+@using PNMTD.Lib.Models.Poco;
+@inject IJSRuntime JS
+@inject NavigationManager navigationManager
+@inject PNMTDApi _PNTMDApi
+
+<h3>Notification Rules</h3>
+
+<p><a href="/notificationrule/new">Create new rule</a></p>
+
+@if(Rules != null)
+{
+    if(Rules.Any())
+    {
+        <table class="table" id="notificationruletable">
+            <thead>
+                <tr>
+                    <th scope="col">Rule</th>
+                    <th scope="col">Enabled</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Type</th>
+                    <th scope="col">Recipient</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var rule in Rules)
+                {
+                    <tr>
+                        <th scope="row"><a href="/notificationrule/edit/@rule.Id">@rule.Id</a></th>
+                        <td><EditableTextComponent Entity="@rule" TItem="bool" InputType="checkbox" @bind-Value="@rule.Enabled"></EditableTextComponent></td>
+                        <td><EditableTextComponent Entity="@rule" TItem="string" InputType="text" @bind-Value="@rule.Name"></EditableTextComponent></td>
+                        <td><EditableTextComponent Entity="@rule" TItem="NotificationRuleType" InputType="select" @bind-Value="@rule.Type"></EditableTextComponent></td>
+                        <td><EditableTextComponent Entity="@rule" TItem="string" InputType="text" @bind-Value="@rule.Recipient"></EditableTextComponent></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p>No notification rules in table</p>
+    }
+}
+else
+{
+    <p>Loading...</p>
+}
+
+@code {
+    List<NotificationRulePoco> Rules = new List<NotificationRulePoco>();
+
+    private Task<IJSObjectReference> _module;
+    private Task<IJSObjectReference> Module
+    {
+        get
+        {
+            return _module ??= JS.InvokeAsync<IJSObjectReference>("import", new string[] { "./js/datatable.interop.js" }).AsTask();
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Rules = (await _PNTMDApi.NotificationRules.GetAll()).ToList();
+
+        await base.OnInitializedAsync();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var module = await Module;
+            await module.InvokeVoidAsync("attachDataTable", "#notificationruletable");
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_module != null)
+        {
+            var module = await Module;
+            await module.InvokeVoidAsync("detachDataTable");
+            await module.DisposeAsync();
+        }
+    }
+
+}

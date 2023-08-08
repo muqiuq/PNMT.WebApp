@@ -13,3 +13,7 @@
 	transform: scale(1.2);
 }
 
+.icon-base-big {
+	font-size: 1.5rem;
+	margin-right: 10px;
+}
