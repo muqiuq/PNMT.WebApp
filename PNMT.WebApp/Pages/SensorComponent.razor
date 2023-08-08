@@ -2,6 +2,7 @@
 @using PNMT.WebApp.Data;
 @using PNMT.WebApp.Models.Forms;
 @using PNMTD.Lib.Helper;
+@using PNMTD.Lib.Models.Enum;
 @using PNMTD.Lib.Models.Poco;
 @using PNMTD.Models.Poco;
 @using PNMT.WebApp.Components
@@ -49,7 +50,7 @@ else
                     </tr>
                         <tr>
                             <td>Type</td>
-                            <td><b>@sensorPoco.Type</b></td>
+                            <td><b><EditableTextComponent InputType="select" Entity="@sensorPoco" TItem="SensorType" @bind-Value="@sensorPoco.Type"></EditableTextComponent></b></td>
                         </tr>
                     <tr>
                         <td>Grace period</td>

@@ -1,0 +1,91 @@
+﻿@page "/sensor/new/{Id:guid}"
+@inject ILogger<EditHostComponent> Logger
+@using PNMT.WebApp.Components
+@using PNMT.WebApp.Data;
+@using PNMT.WebApp.Models.Forms;
+@using PNMTD.Lib.Helper;
+@using PNMTD.Lib.Models.Poco;
+@using PNMTD.Models.Poco;
+@inject NavigationManager navigationManager
+@inject PNMTDApi _PNTMDApi
+
+
+<h3>@Title</h3>
+
+@if(sensorForm == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <EditForm Model="@sensorForm" OnValidSubmit="@HandleValidSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="form-check">
+            <label>
+                Enabled
+            </label>
+            <InputCheckbox class="form-check-input" @bind-Value="sensorForm.Enabled" />
+        </div>
+
+        <div class="form-group">
+            <label>Name:</label>
+            <InputText class="form-control" @bind-Value="sensorForm.Name" />
+        </div>
+
+        <div class="form-group">
+            <label>Location:</label>
+            <InputText class="form-control" @bind-Value="sensorForm.TextId" />
+        </div>
+        <div class="form-group">
+            <label>Type:</label>
+            <SelectComponent @bind-Value="sensorForm.Type"></SelectComponent>
+        </div>
+        <div class="form-group">
+            <label>Interval:</label>
+            <InputNumber class="form-control" @bind-Value="sensorForm.Interval" />
+        </div>
+        <div class="form-group">
+            <label>Grace Period:</label>
+            <InputNumber class="form-control" @bind-Value="sensorForm.GracePeriod" />
+        </div>
+        <div style="margin-top: 20px">
+            <button class="btn btn-primary" type="submit">Create</button>
+        </div>
+    </EditForm>
+}
+
+
+@code {
+    [Parameter]
+    public Guid Id { get; set; }
+
+    private HostPoco hostPoco;
+
+    public SensorPoco sensorPoco;
+
+    public SensorForm sensorForm = new SensorForm()
+    {
+        Interval = 60,
+        GracePeriod = 60
+    };
+
+    public string Title = "New Sensor";
+
+    protected override async Task OnInitializedAsync()
+    {
+        hostPoco = (await _PNTMDApi.Hosts.Get(Id));
+        sensorForm = new SensorForm();
+
+        await base.OnInitializedAsync();
+    }
+
+    private async void HandleValidSubmit()
+    {
+        var sensorPoco = sensorForm.MapPropertiesTo<SensorForm, SensorPoco>();
+        sensorPoco.ParentId = hostPoco.Id;
+        await _PNTMDApi.Sensors.AddNew(sensorPoco);
+        navigationManager.NavigateTo($"/host/{hostPoco.Id}");
+    }
+}
