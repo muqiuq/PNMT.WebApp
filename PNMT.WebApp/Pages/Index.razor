@@ -12,7 +12,7 @@
   <MudGrid>
     <CardDashboardComp Icon="@Icons.Material.Filled.Router" Title="Hosts" Value="@NumberOfHosts"></CardDashboardComp>
     <CardDashboardComp Icon="@Icons.Material.Filled.Thermostat" Title="Sensors" Value="@NumberOfSensors"></CardDashboardComp>
-    <CardDashboardComp Icon="@Icons.Material.Filled.Dangerous" LeftBoarderCss="border-left-danger" TitleCss="text-danger" Title="Failures" Value="@allHostsWithErrors.Count()"></CardDashboardComp>
+    <CardDashboardComp Icon="@Icons.Material.Filled.Dangerous" LeftBoarderCss="border-left-danger" TitleCss="mud-error-text" Title="Failures" Value="@allHostsWithErrors.Count()"></CardDashboardComp>
   </MudGrid>
 
   <MudGrid>
@@ -20,11 +20,14 @@
       @foreach (var host in allHostsWithErrors)
       {
         <div class="card shadow mb-4">
-          <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-            <h2 class="m-0 font-weight-bold text-danger"><i style="margin-right: 10px; font-size: 1.25rem;" class="bi bi-x-circle-fill text-danger"></i><b>@host.Name</b></h2>
-            <a href="/host/@host.Id" style="line-height:normal;">
-              <i class="icon-pos-fix bi bi-box-arrow-up-right icon-base"></i>
-            </a>
+          <div class="card-header py-3 d-flex flex-row align-items-center justify-space-between">
+            <h2 class="m-0 font-weight-bold mud-error-text">
+              <MudIcon Icon="@Icons.Material.Filled.Dangerous" Class="icon-pos-fix-2" />
+              <b>@host.Name</b>
+            </h2>
+            <MudLink Href="@($"/host/{host.Id}")" Class="object-right">
+              <MudIcon Icon="@Icons.Material.Filled.OpenInNew"></MudIcon>
+            </MudLink>
           </div>
           <div class="card-body">
             <table class="table table-bordered table-hover table-striped">
@@ -39,7 +42,12 @@
                 @foreach (var sensor in host.Sensors.Where(s => !s.IsSuccess).ToList())
                 {
                   <tr>
-                    <td><i class="bi bi-x-circle-fill text-gray-700 icon-base-some-space"></i><a href="/sensor/@sensor.Id">@sensor.Name</a></td>
+                    <td>
+                      <div class="d-flex">
+                        <div class="d-inline"><MudIcon Icon="@Icons.Material.Filled.Sensors" Class="text-grey-700 icon-pos-fix-2 icon-base-some-space"></MudIcon></div>
+                        <div class="d-inline"><MudLink Href="@($"/sensor/{sensor.Id}")">@sensor.Name</MudLink></div>
+                      </div>
+                    </td>
                     <td>@sensor.LastCode</td>
                     <td><b><SinceComp Moment="@(sensor.Since.Value)"></SinceComp></b></td>
                   </tr>

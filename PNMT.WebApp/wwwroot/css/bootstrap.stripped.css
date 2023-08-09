@@ -515,6 +515,11 @@ th {
 	border-width: 0;
 }
 
+table {
+	caption-side: bottom;
+	border-collapse: collapse;
+}
+
 .table {
 	--bs-table-color-type: initial;
 	--bs-table-bg-type: initial;

@@ -6,20 +6,24 @@
 @using PNMTD.Lib.Models.Poco;
 @inject NavigationManager navigationManager
 @inject PNMTDApi _PNTMDApi
-
+@inject IDialogService DialogService
 
 <MudContainer>
-    <MudGrid>
-      <MudItem xs="12">
-        <div class="col">
-          <h3>Host - <b>@hostPoco.Name</b></h3>
-        </div>
-      </MudItem>
+  <MudGrid>
+    <MudItem xs="12">
+      <MudGrid>
+        <MudItem xs="12">
+          <MudPaper Class="pa-3 ma-2 mt-4"><h1>Host - <b>@hostPoco.Name</b></h1></MudPaper>
+        </MudItem>
+      </MudGrid>
+    </MudItem>
   </MudGrid>
   <MudGrid>
-  <MudItem xs="6">
+    <MudItem xs="6">
       <BigCardComp Title="Properties">
-        <p><a href="" @onclick=DeleteHost @onclick:preventDefault>Delete</a></p>
+        <div class="pb-4">
+          <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="DeleteHost">Delete</MudButton>
+        </div>
         <table class="table table-bordered table-hover">
           <thead>
           </thead>
@@ -71,14 +75,16 @@
                 <td>
                   @if (sensor.IsSuccess)
                   {
-                    <i class="bi bi-check-circle-fill text-success"></i>
+                    <MudIcon Icon="@Icons.Material.Filled.CheckBox" Color="Color.Success"></MudIcon>
                   }
                   else
                   {
-                    <i class="bi bi-x-circle-fill text-danger"></i>
+                    <MudIcon Icon="@Icons.Material.Filled.Error" Color="Color.Error"></MudIcon>
                   }
                 </td>
-                <td><a href="/sensor/@sensor.Id">@sensor.Name</a></td>
+                <td>
+                  <MudLink Href="@($"/sensor/{sensor.Id}")">@sensor.Name</MudLink>
+                </td>
                 <td>@sensor.LastCode</td>
                 <td>@sensor.LastMessage</td>
               </tr>
@@ -109,8 +115,10 @@
 
   private async void DeleteHost()
   {
-    await _PNTMDApi.Hosts.Delete(Id);
-
-    navigationManager.NavigateTo("/hosts");
+    DialogHelper.ShowDeleteDialog(DialogService, async () =>
+    {
+      await _PNTMDApi.Hosts.Delete(Id);
+      navigationManager.NavigateTo("/hosts");
+    });
   }
 }

@@ -18,6 +18,10 @@
 	margin-left: 10px;
 }
 
+.icon-base-just-bit-smaller {
+	font-size: 0.9rem;
+}
+
 .icon-base-small {
 	font-size: 0.75rem;
 }
@@ -32,14 +36,26 @@
 	margin-right: 10px;
 }
 
+.icon-base-more-space {
+	margin-right: 0.75rem;
+}
+
 .icon-base-some-space {
 	margin-right: 5px;
+}
+
+.icon-base-some-space-left {
+	margin-left: 5px;
 }
 
 .icon-pos-fix {
 	vertical-align: sub;
 	margin-right: 13px;
 	font-size: 1.8rem;
+}
+
+.icon-pos-fix-2 {
+	vertical-align: sub;
 }
 
 .thead-small {

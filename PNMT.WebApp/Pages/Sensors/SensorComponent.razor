@@ -9,6 +9,7 @@
 @using PNMT.WebApp.Components
 @inject NavigationManager navigationManager
 @inject PNMTDApi _PNTMDApi
+@inject IDialogService DialogService
 
 
 @if (sensorPoco == null)
@@ -20,19 +21,26 @@ else
   <MudContainer>
     <MudGrid>
       <MudItem xs="12">
-        <h2>Sensor - <b>@sensorPoco.Name</b></h2>
+        <MudPaper Class="pa-3 ma-2 mt-4"><h1>Sensor - <b>@sensorPoco.Name</b></h1>
+          <p><i><a href="@($"/host/{sensorPoco.ParentId}")">@sensorPoco.Parent.Name</a></i></p>
+        </MudPaper>
       </MudItem>
     </MudGrid>
     <MudGrid>
       <MudItem xs="6">
         <BigCardComp Title="Properties">
+          <div class="pb-4">
+            <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="DeleteSensor">Delete</MudButton>
+          </div>
           <table class="table table-bordered table-hover">
             <thead>
             </thead>
             <tbody>
               <tr>
                 <td>Parent (Host)</td>
-                <td><a href="/host/@sensorPoco.ParentId">View</a></td>
+                <td>
+                    <MudLink Href="@($"/host/{sensorPoco.ParentId}")">@sensorPoco.Parent.Name</MudLink>
+                </td>
               </tr>
               <tr>
                 <td>Enabled</td>
@@ -144,6 +152,7 @@ else
                   <th>time of event</th>
                   <th>code</th>
                   <th>msg</th>
+                  <th>source</th>
                 </tr>
               </thead>
               <tbody>
@@ -153,17 +162,18 @@ else
                     <td>
                       @if (e.IsSuccess)
                       {
-                        <i class="bi bi-check-circle-fill text-success"></i>
+                        <MudIcon Icon="@Icons.Material.Filled.CheckBox" Color="Color.Success"></MudIcon>
                       }
                       else
                       {
-                        <i class="bi bi-x-circle-fill text-danger"></i>
+                        <MudIcon Icon="@Icons.Material.Filled.Error" Color="Color.Error"></MudIcon>
                       }
 
                     </td>
                     <td>@e.Created</td>
                     <td>@e.StatusCode</td>
                     <td>@e.Message</td>
+                    <td>@e.Source</td>
                   </tr>
                 }
               </tbody>
@@ -234,5 +244,14 @@ else
     }
     linkNotificationButtonDisabled = false;
     await InvokeAsync(StateHasChanged);
+  }
+
+  private async void DeleteSensor()
+  {
+    DialogHelper.ShowDeleteDialog(DialogService, async () =>
+    {
+      await _PNTMDApi.Sensors.Delete(Id);
+      navigationManager.NavigateTo($"/host/{sensorPoco.ParentId}");
+    });
   }
 }
