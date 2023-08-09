@@ -10,83 +10,84 @@
 @inject NavigationManager navigationManager
 @inject PNMTDApi _PNTMDApi
 
+<MudOverlay Visible="isLoading" DarkBackground="true" Absolute="true">
+  <MudProgressCircular Color="Color.Secondary" Indeterminate="true" />
+</MudOverlay>
 
-<h3>@Title</h3>
-
-@if(sensorForm == null)
+@if (sensorForm != null)
 {
-    <p>Loading...</p>
-}
-else
-{
-    <EditForm Model="@sensorForm" OnValidSubmit="@HandleValidSubmit">
-        <DataAnnotationsValidator />
-        <ValidationSummary />
+  <MudContainer>
+    <MudGrid>
+      <MudItem xs="12">
+        <MudPaper Class="pa-3 ma-2 mt-4">
+          <h1>New Sensor for @hostPoco.Name</h1>
+        </MudPaper>
+      </MudItem>
+    </MudGrid>
 
-        <div class="form-check">
-            <label>
-                Enabled
-            </label>
-            <InputCheckbox class="form-check-input" @bind-Value="sensorForm.Enabled" />
-        </div>
-
-        <div class="form-group">
-            <label>Name:</label>
-            <InputText class="form-control" @bind-Value="sensorForm.Name" />
-        </div>
-
-        <div class="form-group">
-            <label>Location:</label>
-            <InputText class="form-control" @bind-Value="sensorForm.TextId" />
-        </div>
-        <div class="form-group">
-            <label>Type:</label>
-            <SelectComponent @bind-Value="sensorForm.Type"></SelectComponent>
-        </div>
-        <div class="form-group">
-            <label>Interval:</label>
-            <InputNumber class="form-control" @bind-Value="sensorForm.Interval" />
-        </div>
-        <div class="form-group">
-            <label>Grace Period:</label>
-            <InputNumber class="form-control" @bind-Value="sensorForm.GracePeriod" />
-        </div>
-        <div style="margin-top: 20px">
-            <button class="btn btn-primary" type="submit">Create</button>
-        </div>
+    <EditForm Model="@sensorForm" OnValidSubmit="@HandleValidSubmit" OnInvalidSubmit="InvalidSubmit">
+      <DataAnnotationsValidator />
+      @if (!ValidForm)
+      {
+        <MudAlert Severity="Severity.Error" Dense="true" Class="my-2"><ValidationSummary/></MudAlert>
+      }
+      <MudStack>
+        <MudCheckBox @bind-Checked="@sensorForm.Enabled" Label="Enabled"></MudCheckBox>
+        <MudTextField @bind-Value="sensorForm.Name" Label="Name" Variant="Variant.Outlined"></MudTextField>
+        <MudTextField @bind-Value="sensorForm.TextId" Label="TextId" Variant="Variant.Outlined"></MudTextField>
+        <SelectComponent Label="Type" @bind-Value="sensorForm.Type"></SelectComponent>
+        <MudNumericField @bind-Value="sensorForm.Interval" Label="Internval (s)" Variant="Variant.Outlined"></MudNumericField>
+        <MudNumericField @bind-Value="sensorForm.GracePeriod" Label="GracePeriod (s)" Variant="Variant.Outlined"></MudNumericField>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" ButtonType="ButtonType.Submit">@("Create")</MudButton>
+      </MudStack>
     </EditForm>
+  </MudContainer>
 }
 
 
 @code {
-    [Parameter]
-    public Guid Id { get; set; }
+  [Parameter]
+  public Guid Id { get; set; }
 
-    private HostPoco hostPoco;
+  private HostPoco hostPoco;
 
-    public SensorPoco sensorPoco;
+  public SensorPoco sensorPoco;
 
-    public SensorForm sensorForm = new SensorForm()
+  private bool isLoading = true;
+
+  public SensorForm sensorForm;
+
+  public string Title = "New Sensor";
+
+  public bool ValidForm = true;
+
+  protected override async Task OnInitializedAsync()
+  {
+    hostPoco = (await _PNTMDApi.Hosts.Get(Id));
+
+    sensorForm = new SensorForm()
     {
-        Interval = 60,
-        GracePeriod = 60
+    Interval = 60,
+    GracePeriod = 60
     };
 
-    public string Title = "New Sensor";
+    await base.OnInitializedAsync();
 
-    protected override async Task OnInitializedAsync()
-    {
-        hostPoco = (await _PNTMDApi.Hosts.Get(Id));
-        sensorForm = new SensorForm();
+    isLoading = false;
+  }
 
-        await base.OnInitializedAsync();
-    }
+  private async void HandleValidSubmit()
+  {
+    ValidForm = true;
+    isLoading = true;
+    var sensorPoco = sensorForm.MapPropertiesTo<SensorForm, SensorPoco>();
+    sensorPoco.ParentId = hostPoco.Id;
+    await _PNTMDApi.Sensors.AddNew(sensorPoco);
+    navigationManager.NavigateTo($"/host/{hostPoco.Id}");
+  }
 
-    private async void HandleValidSubmit()
-    {
-        var sensorPoco = sensorForm.MapPropertiesTo<SensorForm, SensorPoco>();
-        sensorPoco.ParentId = hostPoco.Id;
-        await _PNTMDApi.Sensors.AddNew(sensorPoco);
-        navigationManager.NavigateTo($"/host/{hostPoco.Id}");
-    }
+  private void InvalidSubmit()
+  {
+    ValidForm = false;
+  }
 }

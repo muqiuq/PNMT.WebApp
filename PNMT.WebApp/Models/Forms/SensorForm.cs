@@ -1,4 +1,5 @@
 ﻿using PNMTD.Lib.Models.Enum;
+using System.ComponentModel.DataAnnotations;
 
 namespace PNMT.WebApp.Models.Forms
 {
@@ -6,12 +7,15 @@ namespace PNMT.WebApp.Models.Forms
     {
         public Guid Id { get; set; }
 
+        [Required]
         public SensorType Type { get; set; }
 
+        [Required]
         public string Name { get; set; }
 
         public string? TextId { get; set; }
 
+        [Required]
         public bool Enabled { get; set; }
 
         public int Interval { get; set; }

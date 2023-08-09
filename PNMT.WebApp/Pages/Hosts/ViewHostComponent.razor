@@ -58,7 +58,9 @@
     </MudItem>
     <MudItem xs="6">
       <BigCardComp Title="Sensors">
-        <p><a href="/sensor/new/@hostPoco.Id">Create</a></p>
+        <div class="pb-4">
+          <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Add" Color="Color.Secondary" Href="@($"/sensor/new/{hostPoco.Id}")">Create</MudButton>
+        </div>
         <table class="table table-hover table-striped">
           <thead class="thead-small">
             <tr>
