@@ -1,7 +1,8 @@
-﻿using System.Diagnostics;
+﻿using PNMT.ApiClient.Data;
+using System.Diagnostics;
 using static System.Formats.Asn1.AsnWriter;
 
-namespace PNMT.WebApp.Data
+namespace PNMT.WebApp.Helper
 {
     public static class PNMTDApiExtensions
     {

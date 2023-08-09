@@ -1,6 +1,6 @@
 ﻿@page "/sensor/{Id:guid}"
 @using Microsoft.AspNetCore.Mvc.Rendering;
-@using PNMT.WebApp.Data;
+@using PNMT.ApiClient.Data;
 @using PNMT.WebApp.Models.Forms;
 @using PNMTD.Lib.Helper;
 @using PNMTD.Lib.Models.Enum;
@@ -12,11 +12,12 @@
 @inject IDialogService DialogService
 
 
-@if (sensorPoco == null)
-{
-  <p>Loading...</p>
-}
-else
+
+<MudOverlay Visible="sensorPoco == null" DarkBackground="true" Absolute="true">
+    <MudProgressCircular Color="Color.Secondary" Indeterminate="true" />
+</MudOverlay>
+
+@if (sensorPoco != null)
 {
   <MudContainer>
     <MudGrid>
@@ -49,6 +50,10 @@ else
               <tr>
                 <td>Id</td>
                 <td>@sensorPoco.Id</td>
+              </tr>
+              <tr>
+                <td>SecretToken</td>
+                <td>@sensorPoco.SecretToken</td>
               </tr>
               <tr>
                 <td>Created</td>

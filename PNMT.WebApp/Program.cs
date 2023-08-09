@@ -1,9 +1,6 @@
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
 using MudBlazor.Services;
-using PNMT.WebApp.Data;
-using PNMT.WebApp.Helper;
-using PNMTD.Lib;
+using PNMT.ApiClient.Data;
+using PNMTD.Lib.Authentification;
 
 namespace PNMT.WebApp
 {
@@ -19,7 +16,7 @@ namespace PNMT.WebApp
       builder.Services.AddHttpClient();
 
       builder.Services.AddScoped<PNMTDApi>();
-      builder.Services.AddSingleton<JwtTokenProvider>(new JwtTokenProvider());
+      builder.Services.AddSingleton<JwtTokenProvider>(new JwtTokenProvider(Global.IsDevelopment));
 
       builder.Services.AddMudServices();
 

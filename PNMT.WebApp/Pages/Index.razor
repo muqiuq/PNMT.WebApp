@@ -1,5 +1,5 @@
 ﻿@page "/"
-@using PNMT.WebApp.Data;
+@using PNMT.ApiClient.Data;
 @using PNMTD.Lib.Models.Poco;
 @using PNMT.WebApp.Components.Dashboard;
 @using PNMT.WebApp.Components;
@@ -7,6 +7,10 @@
 @inject PNMTDApi _PNTMDApi
 
 <PageTitle>PNMT</PageTitle>
+
+<MudOverlay Visible="isLoading" DarkBackground="true" Absolute="true">
+  <MudProgressCircular Color="Color.Secondary" Indeterminate="true" />
+</MudOverlay>
 
 <MudContainer>
   <MudGrid>
@@ -92,6 +96,8 @@
 </MudContainer>
 
 @code {
+  public bool isLoading { get; set; } = true;
+
   List<HostStatePoco> allHosts = new List<HostStatePoco>();
 
   List<HostStatePoco> allHostsWithErrors
@@ -123,6 +129,8 @@
     allHosts = (await _PNTMDApi.Hosts.GetAllHostsWithSensors());
 
     await base.OnInitializedAsync();
+
+    isLoading = false;
   }
 
 }
