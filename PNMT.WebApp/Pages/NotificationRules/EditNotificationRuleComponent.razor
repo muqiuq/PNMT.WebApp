@@ -10,59 +10,41 @@
 @inject PNMTDApi _PNTMDApi
 
 
-<h3>@Title</h3>
-<div class="container">
-  <div class="row">
-    <div class="col">
+
+<MudContainer>
+  <h2>@Title</h2>
+  <MudGrid>
+    <MudItem xs="6">
       <BigCardComp Title="Properties">
         <EditForm Model="@notificationRuleForm" OnValidSubmit="@HandleValidSubmit">
           <DataAnnotationsValidator />
           <ValidationSummary />
-
-          <div class="form-check">
-            <label>
-              Enabled
-            </label>
-            <InputCheckbox class="form-check-input" @bind-Value="notificationRuleForm.Enabled" />
-          </div>
-
-          <div class="form-group">
-            <label>Name:</label>
-            <InputText class="form-control" @bind-Value="notificationRuleForm.Name" />
-          </div>
-
-          <div class="form-group">
-            <label>Recipient:</label>
-            <InputText class="form-control" @bind-Value="notificationRuleForm.Recipient" />
-          </div>
-
-          <div class="form-group">
-            <label>Type:</label>
-            <SelectComponent @bind-Value="notificationRuleForm.Type"></SelectComponent>
-          </div>
-
-          <div style="margin-top: 20px">
-            <button class="btn btn-primary" type="submit">@(Id == null ? "Add" : "Save")</button>
-          </div>
-        </EditForm>
-      </BigCardComp>
-    </div>
-    <div class="col">
-      <BigCardComp Title="Linked Sensors">
-        @if (notificationRulePoco != null)
+          <MudStack>
+            <MudCheckBox @bind-Checked="@notificationRuleForm.Enabled" Label="Enabled"></MudCheckBox>
+            <MudTextField @bind-Value="notificationRuleForm.Name" Label="Name" Variant="Variant.Outlined"></MudTextField>
+            <MudTextField @bind-Value="notificationRuleForm.Recipient" Label="Recipient" Variant="Variant.Outlined"></MudTextField>
+            <SelectComponent Label="Type" @bind-Value="notificationRuleForm.Type"></SelectComponent>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" ButtonType="ButtonType.Submit">@(Id == null ? "Add" : "Save")</MudButton>
+            </MudStack>
+          </EditForm>
+        </BigCardComp>
+      </MudItem>
+      <MudItem xs="6">
+        <BigCardComp Title="Linked Sensors">
+          @if (notificationRulePoco != null)
         {
-          <h3>Subscripbed by Sensors</h3>
-          <ul class="list-group">
+          <MudList Clickable="true">
             @foreach (var sensorId in notificationRulePoco.SubscribedSensors)
             {
-              <li class="list-group-item"><a href="sensor/@sensorId.ToString()">@sensorId.ToString()</a></li>
+              <MudListItem><a href="sensor/@sensorId.ToString()">@sensorId.ToString()</a></MudListItem>
+              <MudDivider />
             }
-          </ul>
+          </MudList>
         }
       </BigCardComp>
-    </div>
-  </div>
-</div>
+    </MudItem>
+  </MudGrid>
+</MudContainer>
 
 @code {
 

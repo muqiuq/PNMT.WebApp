@@ -1,47 +1,50 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using MudBlazor.Services;
 using PNMT.WebApp.Data;
 using PNMT.WebApp.Helper;
 using PNMTD.Lib;
 
 namespace PNMT.WebApp
 {
-    public class Program
+  public class Program
+  {
+    public static void Main(string[] args)
     {
-        public static void Main(string[] args)
-        {
-            var builder = WebApplication.CreateBuilder(args);
+      var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
-            builder.Services.AddRazorPages();
-            builder.Services.AddServerSideBlazor();
-            builder.Services.AddHttpClient();
+      // Add services to the container.
+      builder.Services.AddRazorPages();
+      builder.Services.AddServerSideBlazor();
+      builder.Services.AddHttpClient();
 
-            builder.Services.AddScoped<PNMTDApi>();
-            builder.Services.AddSingleton<JwtTokenProvider>(new JwtTokenProvider());
+      builder.Services.AddScoped<PNMTDApi>();
+      builder.Services.AddSingleton<JwtTokenProvider>(new JwtTokenProvider());
 
-            var app = builder.Build();
+      builder.Services.AddMudServices();
 
-            // Configure the HTTP request pipeline.
-            if (!app.Environment.IsDevelopment())
-            {
-                app.UseExceptionHandler("/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-                app.UseHsts();
-            }
+      var app = builder.Build();
 
-            app.UseHttpsRedirection();
+      // Configure the HTTP request pipeline.
+      if (!app.Environment.IsDevelopment())
+      {
+        app.UseExceptionHandler("/Error");
+        // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+        app.UseHsts();
+      }
 
-            app.UseStaticFiles();
+      app.UseHttpsRedirection();
 
-            app.UseRouting();
+      app.UseStaticFiles();
 
-            app.MapBlazorHub();
-            app.MapFallbackToPage("/_Host");
+      app.UseRouting();
 
-            Global.WebApp = app;
+      app.MapBlazorHub();
+      app.MapFallbackToPage("/_Host");
 
-            app.Run();
-        }
+      Global.WebApp = app;
+
+      app.Run();
     }
+  }
 }

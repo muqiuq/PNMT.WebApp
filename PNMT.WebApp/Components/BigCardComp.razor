@@ -1,16 +1,16 @@
-﻿<div class="card shadow mb-4">
-<div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-    <h6 class="m-0 font-weight-bold @TitleCss">
-    @if(TitleIcon != null)
-    {
+﻿<div class="card shadow ma-1 mt-4">
+  <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+    <h2 class="m-0 font-weight-bold @TitleCss">
+      @if (TitleIcon != null)
+      {
         <i class="icon-pos-fix @TitleIcon"></i>
-    }
-    <b>@Title</b>
-    </h6>
-</div>
-<div class="card-body">
+      }
+      <b>@Title</b>
+    </h2>
+  </div>
+  <div class="card-body">
     @ChildContent
-</div>
+  </div>
 </div>
 @code {
   [Parameter]

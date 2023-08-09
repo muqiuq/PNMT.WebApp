@@ -8,15 +8,16 @@
 @inject PNMTDApi _PNTMDApi
 
 
-
-<div class="container">
-  <div class="row" style="margin-bottom: 20px;">
-    <div class="col">
-      <h3>Host - <b>@hostPoco.Name</b></h3>
-    </div>
-  </div>
-  <div class="row">
-    <div class="col">
+<MudContainer>
+    <MudGrid>
+      <MudItem xs="12">
+        <div class="col">
+          <h3>Host - <b>@hostPoco.Name</b></h3>
+        </div>
+      </MudItem>
+  </MudGrid>
+  <MudGrid>
+  <MudItem xs="6">
       <BigCardComp Title="Properties">
         <p><a href="" @onclick=DeleteHost @onclick:preventDefault>Delete</a></p>
         <table class="table table-bordered table-hover">
@@ -50,8 +51,8 @@
           </tbody>
         </table>
       </BigCardComp>
-    </div>
-    <div class="col">
+    </MudItem>
+    <MudItem xs="6">
       <BigCardComp Title="Sensors">
         <p><a href="/sensor/new/@hostPoco.Id">Create</a></p>
         <table class="table table-hover table-striped">
@@ -85,9 +86,9 @@
           </tbody>
         </table>
       </BigCardComp>
-    </div>
-  </div>
-</div>
+    </MudItem>
+  </MudGrid>
+</MudContainer>
 
 @code {
   [Parameter]

@@ -1,86 +1,36 @@
 ﻿@page "/hosts"
-@implements IAsyncDisposable
 @using PNMT.WebApp.Data;
 @using PNMT.WebApp.Models.Forms;
 @using PNMTD.Lib.Helper;
 @using PNMTD.Lib.Models.Poco;
-@inject IJSRuntime JS
 @inject NavigationManager navigationManager
 @inject PNMTDApi _PNTMDApi
 
-<h3>Hosts</h3>
+<MudContainer>
+  <h2>Hosts</h2>
 
-<p><a href="/host/new">Add Host</a></p>
+  <p><a href="/host/new">Add Host</a></p>
 
-@if(Hosts.Any())
-{
-    <table class="table" id="hoststable">
-        <thead>
-            <tr>
-                <th scope="col">Name</th>
-                <th scope="col">Location</th>
-                <th scope="col">Created</th>
-                <th scope="col">Id</th>
-                <th scope="col"></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var host in Hosts)
-            {
-                <tr>
-                    <th scope="row"><a href="/host/@host.Id">@host.Name</a></th>
-                    <td>@host.Location</td>
-                    <td>@host.Created</td>
-                    <td>@host.Id</td>
-                    <td>
-                        <a href="/host/@host.Id">View</a>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
-else
-{
-    <p>Loading...</p>
-}
+  <MudDataGrid Items="@Hosts">
+    <Columns>
+      <TemplateColumn>
+        <CellTemplate>
+          <a href="/host/@context.Item.Id">@context.Item.Id</a>
+        </CellTemplate>
+      </TemplateColumn>
+      <PropertyColumn Property="h => h.Name" Title="Nr" />
+      <PropertyColumn Property="h => h.Location" />
+      <PropertyColumn Property="h => h.Location" />
+      <PropertyColumn Property="h => h.Id" />
+    </Columns>
+  </MudDataGrid>
+</MudContainer>
 
 @code {
-    List<HostForm> Hosts = new List<HostForm>();
+  List<HostForm> Hosts = new List<HostForm>();
 
-    private Task<IJSObjectReference> _module;
-    private Task<IJSObjectReference> Module
-    {
-        get
-        {
-            return _module ??= JS.InvokeAsync<IJSObjectReference>("import", new string[] { "./js/datatable.interop.js" }).AsTask();
-        }
-    }
-
-    protected override async Task OnInitializedAsync()
-    {
-        Hosts = (await _PNTMDApi.Hosts.GetAll()).Select(x => x.MapPropertiesTo<HostPoco, HostForm>()).ToList();
-
-        await base.OnInitializedAsync();
-    }
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            var module = await Module;
-            await module.InvokeVoidAsync("attachDataTable", "#hoststable");
-        }
-    }
-
-    public async ValueTask DisposeAsync()
-    {
-        if (_module != null)
-        {
-            var module = await Module;
-            await module.InvokeVoidAsync("detachDataTable");
-            await module.DisposeAsync();
-        }
-    }
-
+  protected override async Task OnInitializedAsync()
+  {
+    Hosts = (await _PNTMDApi.Hosts.GetAll()).Select(x => x.MapPropertiesTo<HostPoco, HostForm>()).ToList();
+  }
 }

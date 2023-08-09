@@ -1,38 +1,46 @@
 ﻿@using Microsoft.AspNetCore.Mvc.Rendering;
 @typeparam TItem
 
-<select class="form-select" @bind="Value" @bind:after="ValueUpdated">
+@if (typeof(TItem).IsEnum)
+{
+  <MudSelect Label="@Label" @bind-Value="Value" ToStringFunc="x => x.ToString()" @bind-Value:after="ValueUpdated" Margin="Margin.Dense">
+    @foreach (TItem item in Enum.GetValues(typeof(TItem)))
+    {
+      <MudSelectItem Value="@item">@Enum.GetName(typeof(TItem), item)</MudSelectItem>
+    }
+  </MudSelect>
+}
+else
+{
+  <MudSelect Label="@Label" @bind-Value="Value" @bind-Value:after="ValueUpdated" Margin="Margin.Dense">
     @foreach (var item in Options)
     {
-        <option value="@item.Value">@item.Text</option>
+      <MudSelectItem Value="@item.Value">@item.Text</MudSelectItem>
     }
-</select>
+  </MudSelect>
+}
+
 
 @code {
-    [Parameter]
-    public TItem Value { get; set; }
+  [Parameter]
+  public TItem Value { get; set; }
 
-    [Parameter]
-    public EventCallback<TItem> ValueChanged { get; set; }
+  [Parameter]
+  public EventCallback<TItem> ValueChanged { get; set; }
 
-    [Parameter]
-    public List<SelectListItem> Options { get; set; } = new List<SelectListItem>();
+  [Parameter]
+  public List<SelectListItem> Options { get; set; } = new List<SelectListItem>();
 
-    protected override async Task OnInitializedAsync()
-    {
-        if (typeof(TItem).IsEnum)
-        {
-            Enum.GetNames(typeof(TItem)).ToList().ForEach(x =>
-            {
-                Options.Add(new SelectListItem() { Text = x, Value = x });
-            });
-        }
+  [Parameter]
+  public string Label { get; set; } = "";
 
-        await base.OnInitializedAsync();
-    }
+  protected override async Task OnInitializedAsync()
+  {
+    await base.OnInitializedAsync();
+  }
 
-    private async Task ValueUpdated()
-    {
-        await ValueChanged.InvokeAsync(Value);
-    }
+  private async Task ValueUpdated()
+  {
+    await ValueChanged.InvokeAsync(Value);
+  }
 }
