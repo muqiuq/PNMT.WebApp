@@ -16,9 +16,12 @@
   <MudGrid>
     <MudItem xs="6">
       <BigCardComp Title="Properties">
-        <EditForm Model="@notificationRuleForm" OnValidSubmit="@HandleValidSubmit">
+        <EditForm Model="@notificationRuleForm" OnValidSubmit="@HandleValidSubmit" OnInvalidSubmit="HandleInvalidSubmit">
           <DataAnnotationsValidator />
-          <ValidationSummary />
+          @if (!ValidForm)
+          {
+            <MudAlert Severity="Severity.Error" Dense="true" Class="my-2"><ValidationSummary /></MudAlert>
+          }
           <MudStack>
             <MudCheckBox @bind-Checked="@notificationRuleForm.Enabled" Label="Enabled"></MudCheckBox>
             <MudTextField @bind-Value="notificationRuleForm.Name" Label="Name" Variant="Variant.Outlined"></MudTextField>
@@ -57,6 +60,8 @@
 
   public string Title => Id == null ? "Add Notification Rule" : "Edit Notification Rule";
 
+  bool ValidForm = true;
+
   protected override async Task OnInitializedAsync()
   {
     if (Id.HasValue)
@@ -68,8 +73,14 @@
     await base.OnInitializedAsync();
   }
 
+  private void HandleInvalidSubmit()
+  {
+    ValidForm = false;
+  }
+
   private async void HandleValidSubmit()
   {
+    ValidForm = true;
     if (Id.HasValue)
     {
       var updatedNotificationRulePoco = notificationRuleForm.MapPropertiesTo<NotificationRuleForm, NotificationRulePoco>();

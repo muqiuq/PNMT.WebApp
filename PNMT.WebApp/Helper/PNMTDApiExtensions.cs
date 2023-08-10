@@ -17,7 +17,7 @@ namespace PNMT.WebApp.Helper
                 var fields = typeof(PNMTDApi).GetFields();
                 foreach (var field in fields)
                 {
-                    if (field.FieldType.BaseType.Namespace == "PNMT.WebApp.Data" &&
+                    if (field.FieldType.BaseType.Namespace == "PNMT.ApiClient.Data" &&
                         field.FieldType.BaseType.Name.StartsWith("ApiCrud") &&
                         field.FieldType.BaseType.GenericTypeArguments.First() == obj.GetType())
                     {
