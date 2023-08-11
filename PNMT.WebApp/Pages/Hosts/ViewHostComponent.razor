@@ -70,6 +70,8 @@
                             <th scope="col">Name</th>
                             <th scope="col">Code</th>
                             <th scope="col">Msg</th>
+                            <th scope="col">Up (24h)</th>
+                            <th scope="col">Up (30d)</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -99,6 +101,8 @@
                                 </td>
                                 <td>@sensor.LastCode</td>
                                 <td>@sensor.LastMessage</td>
+                                <td>@(string.Format("{0:0.00}", sensor.UpTime24h)) %</td>
+                                <td>@(string.Format("{0:0.00}", sensor.UpTime30days)) %</td>
                             </tr>
                         }
                     </tbody>
