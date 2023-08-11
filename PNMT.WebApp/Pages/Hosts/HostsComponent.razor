@@ -26,9 +26,9 @@
     <div class="pa-3 mb-1 mb-2">
         <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Add" Color="Color.Success" Href="/host/new">Create new</MudButton>
     </div>
-    <MudDataGrid Items="@Hosts">
+    <MudDataGrid Items="@Hosts" T="HostStatePoco" Dense="true" Bordered="true" Filterable="true" RowsPerPage="20" ColumnResizeMode="ResizeMode.Column">
         <Columns>
-            <TemplateColumn Title="#">
+            <TemplateColumn Title="#" Filterable="false" SortBy="@(x => x.State)">
                 <CellTemplate>
                     @if (@context.Item.Enabled)
                     {
@@ -48,7 +48,7 @@
 
                 </CellTemplate>
             </TemplateColumn>
-            <TemplateColumn Title="Name">
+            <TemplateColumn Title="Name" SortBy="@(x => x.Name)">
                 <CellTemplate>
                     <a href="/host/@context.Item.Id">@context.Item.Name</a>
                 </CellTemplate>
@@ -56,6 +56,9 @@
             <PropertyColumn Property="h => h.Location" />
             <PropertyColumn Property="h => h.Id" />
         </Columns>
+        <PagerContent>
+            <MudDataGridPager T="EventEntityPoco" />
+        </PagerContent>
     </MudDataGrid>
 </MudContainer>
 

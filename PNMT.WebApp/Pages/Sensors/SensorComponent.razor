@@ -160,9 +160,10 @@
                     </MudOverlay>
                     @if (eventEntities != null)
                     {
-                        <MudDataGrid Items="@eventEntities" Dense="true" Bordered="true" Filterable="true" RowsPerPage="20" ColumnResizeMode="ResizeMode.Container">
+                        <MudDataGrid T="EventEntityPoco" Items="@eventEntities" Dense="true" Bordered="true" 
+                            Filterable="true" RowsPerPage="10" ColumnResizeMode="ResizeMode.Column">
                             <Columns>
-                                <TemplateColumn Title="#">
+                                <TemplateColumn Title="#" SortBy="@(x => x.IsSuccess)">
                                     <CellTemplate>
                                         @if (@context.Item.IsSuccess)
                                         {
@@ -174,32 +175,19 @@
                                         }
                                     </CellTemplate>
                                 </TemplateColumn>
-                                <TemplateColumn Title="Created">
-                                    <CellTemplate>
-                                        @context.Item.Created
-                                    </CellTemplate>
-                                </TemplateColumn>
-                                <TemplateColumn Title="StatusCode">
-                                    <CellTemplate>
-                                        @context.Item.StatusCode
-                                    </CellTemplate>
-                                </TemplateColumn>
-                                <TemplateColumn Title="Message">
-                                    <CellTemplate>
-                                        @context.Item.Message
-                                    </CellTemplate>
-                                </TemplateColumn>
-                                <TemplateColumn Title="Source">
-                                    <CellTemplate>
-                                        @context.Item.Source
-                                    </CellTemplate>
-                                </TemplateColumn>
-                                <TemplateColumn Title="*">
+                                <PropertyColumn Property="x => x.Created" Title="Created" Filterable="true"></PropertyColumn>
+                                <PropertyColumn Property="x => x.StatusCode" Title="StatusCode" Filterable="true"></PropertyColumn>
+                                <PropertyColumn Property="x => x.Message" Title="Message" Filterable="true"></PropertyColumn>
+                                <PropertyColumn Property="x => x.Source" Title="Source" Filterable="true"></PropertyColumn>
+                                <TemplateColumn Title="*" Sortable="false">
                                     <CellTemplate>
                                         <MudLink OnClick="@(() => OpenEventDetails(context.Item))"><MudIcon Icon="@Icons.Material.Filled.OpenInNew" /></MudLink>
                                     </CellTemplate>
                                 </TemplateColumn>
                             </Columns>
+                            <PagerContent>
+                                <MudDataGridPager T="EventEntityPoco" />
+                            </PagerContent>
                         </MudDataGrid>
                     }
                 </BigCardComp>
