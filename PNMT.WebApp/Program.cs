@@ -82,6 +82,13 @@ namespace PNMT.WebApp
                 {
                     options.LoginPath = "/login";
                     options.LogoutPath = "/logout";
+                    if(builder.Configuration["externalDomain"] != null)
+                    {
+                        options.Cookie.Domain = builder.Configuration["externalDomain"];
+                        options.Cookie.Name = builder.Configuration["externalDomain"];
+                    }
+
+                    options.ExpireTimeSpan = TimeSpan.FromDays(7);
                 });
             builder.Services.AddAuthorization();
 
