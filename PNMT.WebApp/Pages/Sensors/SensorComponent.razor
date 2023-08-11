@@ -89,6 +89,8 @@
                         </tbody>
                     </table>
                 </BigCardComp>
+            </MudItem>
+            <MudItem xs="6">
                 <BigCardComp Title="Sensor URL">
                     <table class="table table-bordered table-hover">
                         <tbody>
@@ -107,8 +109,6 @@
                         </tbody>
                     </table>
                 </BigCardComp>
-            </MudItem>
-            <MudItem xs="6">
                 <BigCardComp Title="Subscribed notification rules">
                     @if (notificationRulesForSensor != null)
                     {
@@ -150,48 +150,57 @@
                         }
                     }
                 </BigCardComp>
+            </MudItem>
+        </MudGrid>
+        <MudGrid>
+            <MudItem xs="12">
                 <BigCardComp Title="Events">
+                    <MudOverlay Visible="eventEntities == null" DarkBackground="true" Absolute="true">
+                        <MudProgressCircular Color="Color.Secondary" Indeterminate="true" />
+                    </MudOverlay>
                     @if (eventEntities != null)
                     {
-                        <table class="table table-hover table-striped">
-                            <thead class="thead-sm">
-                                <tr>
-                                    <th>#</th>
-                                    <th>time of event</th>
-                                    <th>code</th>
-                                    <th>msg</th>
-                                    <th>source</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var e in eventEntities)
-                                {
-                                    <tr>
-                                        <td>
-                                            @if (e.IsSuccess)
-                                            {
-                                                <MudIcon Icon="@Icons.Material.Filled.CheckBox" Color="Color.Success"></MudIcon>
-                                            }
-                                            else
-                                            {
-                                                <MudIcon Icon="@Icons.Material.Filled.Error" Color="Color.Error"></MudIcon>
-                                            }
-
-                                        </td>
-                                        <td>@e.Created</td>
-                                        <td>@e.StatusCode</td>
-                                        <td>@e.Message?.Substring(0, Math.Min(e.Message.Length, 20))</td>
-                                        <td>@e.Source</td>
-                                        <td><MudLink OnClick="@(() => OpenEventDetails(e))"><MudIcon Icon="@Icons.Material.Filled.OpenInNew" /></MudLink></td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    }
-                    else
-                    {
-                        <p>Loading...</p>
+                        <MudDataGrid Items="@eventEntities" Dense="true" Bordered="true" Filterable="true" RowsPerPage="20" ColumnResizeMode="ResizeMode.Container">
+                            <Columns>
+                                <TemplateColumn Title="#">
+                                    <CellTemplate>
+                                        @if (@context.Item.IsSuccess)
+                                        {
+                                            <MudIcon Icon="@Icons.Material.Filled.CheckBox" Color="Color.Success"></MudIcon>
+                                        }
+                                        else
+                                        {
+                                            <MudIcon Icon="@Icons.Material.Filled.Error" Color="Color.Error"></MudIcon>
+                                        }
+                                    </CellTemplate>
+                                </TemplateColumn>
+                                <TemplateColumn Title="Created">
+                                    <CellTemplate>
+                                        @context.Item.Created
+                                    </CellTemplate>
+                                </TemplateColumn>
+                                <TemplateColumn Title="StatusCode">
+                                    <CellTemplate>
+                                        @context.Item.StatusCode
+                                    </CellTemplate>
+                                </TemplateColumn>
+                                <TemplateColumn Title="Message">
+                                    <CellTemplate>
+                                        @context.Item.Message
+                                    </CellTemplate>
+                                </TemplateColumn>
+                                <TemplateColumn Title="Source">
+                                    <CellTemplate>
+                                        @context.Item.Source
+                                    </CellTemplate>
+                                </TemplateColumn>
+                                <TemplateColumn Title="*">
+                                    <CellTemplate>
+                                        <MudLink OnClick="@(() => OpenEventDetails(context.Item))"><MudIcon Icon="@Icons.Material.Filled.OpenInNew" /></MudLink>
+                                    </CellTemplate>
+                                </TemplateColumn>
+                            </Columns>
+                        </MudDataGrid>
                     }
                 </BigCardComp>
             </MudItem>
