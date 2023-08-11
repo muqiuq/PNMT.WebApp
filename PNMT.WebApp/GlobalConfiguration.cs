@@ -4,5 +4,6 @@
     {
         public static string LinuxBasePath = "/var/lib/pnmt/";
 
+        public static string baseUrlForEventSubmission = "";
     }
 }

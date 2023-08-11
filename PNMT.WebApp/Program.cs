@@ -52,11 +52,27 @@ namespace PNMT.WebApp
                 builder.Services.AddSingleton<JwtTokenProvider>(tokenProvider);
             }
 
-            if(!Global.IsDevelopment)
+            if (!Global.IsDevelopment)
             {
                 PNMTDApi.BaseAddress = builder.Configuration["apiurl"];
+                if (PNMTDApi.BaseAddress.EndsWith("/"))
+                {
+                    PNMTDApi.BaseAddress = PNMTDApi.BaseAddress.Substring(0, PNMTDApi.BaseAddress.Length - 1);
+                }
             }
-            
+
+            if(builder.Configuration["externalApiurl"] != null)
+            {
+                PNMTDApi.BaseUrlForEventSubmission = builder.Configuration["externalApiurl"];
+                if(PNMTDApi.BaseUrlForEventSubmission.EndsWith("/"))
+                {
+                    PNMTDApi.BaseUrlForEventSubmission = PNMTDApi.BaseUrlForEventSubmission.Substring(0, PNMTDApi.BaseUrlForEventSubmission.Length - 1);
+                }
+            }
+            else
+            {
+                PNMTDApi.BaseUrlForEventSubmission = PNMTDApi.BaseAddress;
+            }
 
             builder.Services.AddControllers()
               .AddMvcOptions(options => options.Filters.Add(new AuthorizeFilter() { }));
