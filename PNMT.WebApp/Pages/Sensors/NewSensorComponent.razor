@@ -1,4 +1,5 @@
 ﻿@page "/sensor/new/{Id:guid}"
+@attribute [Authorize]
 @inject ILogger<NewSensorComponent> Logger
 @using PNMT.ApiClient.Data;
 @using PNMT.WebApp.Components

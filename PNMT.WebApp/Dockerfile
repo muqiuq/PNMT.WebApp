@@ -7,10 +7,12 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 WORKDIR /src
-COPY ["PNMT.WebApp/PNMT.WebApp.csproj", "PNMT.WebApp/"]
-RUN dotnet restore "PNMT.WebApp/PNMT.WebApp.csproj"
+COPY ["PNMT.WebApp/PNMT.WebApp/PNMT.WebApp.csproj", "PNMT.WebApp/PNMT.WebApp/"]
+COPY ["PNMTD/PNMT.ApiClient/PNMT.ApiClient.csproj", "PNMTD/PNMT.ApiClient/"]
+COPY ["PNMTD/PNMTD.Lib/PNMTD.Lib.csproj", "PNMTD/PNMTD.Lib/"]
+RUN dotnet restore "PNMT.WebApp/PNMT.WebApp/PNMT.WebApp.csproj"
 COPY . .
-WORKDIR "/src/PNMT.WebApp"
+WORKDIR "/src/PNMT.WebApp/PNMT.WebApp"
 RUN dotnet build "PNMT.WebApp.csproj" -c Release -o /app/build
 
 FROM build AS publish

@@ -1,0 +1,24 @@
+﻿<MudDialog>
+    <DialogContent>
+        @(ContentText)
+    </DialogContent>
+</MudDialog>
+
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+
+    [Parameter] public MarkupString ContentText { get; set; }
+
+    void Cancel() => MudDialog.Cancel();
+
+    public static void Show(IDialogService dialogService, string title, MarkupString content, Func<Task> onAccept)
+    {
+        var parameters = new DialogParameters<ContentDialogComp>();
+        parameters.Add(x => x.ContentText, content);
+
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Medium };
+
+        dialogService.Show<ContentDialogComp>(title, parameters, options);
+    }
+}
+

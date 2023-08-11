@@ -1,5 +1,6 @@
 ﻿@page "/notificationrule/new"
 @page "/notificationrule/edit/{Id:guid}"
+@attribute [Authorize]
 @inject ILogger<EditNotificationRuleComponent> Logger
 @using PNMT.ApiClient.Data;
 @using PNMT.WebApp.Components;

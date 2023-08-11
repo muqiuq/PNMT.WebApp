@@ -1,7 +1,9 @@
 ﻿@page "/sensor/{Id:guid}"
+@attribute [Authorize]
 @using Microsoft.AspNetCore.Mvc.Rendering;
 @using PNMT.ApiClient.Data;
 @using PNMT.WebApp.Models.Forms;
+@using PNMT.WebApp.Pages.Event;
 @using PNMTD.Lib.Helper;
 @using PNMTD.Lib.Models.Enum;
 @using PNMTD.Lib.Models.Poco;
@@ -19,244 +21,252 @@
 
 @if (sensorPoco != null)
 {
-  <MudContainer>
-    <MudGrid>
-      <MudItem xs="12">
-        <MudPaper Class="pa-3 ma-2 mt-4"><h1>Sensor - <b>@sensorPoco.Name</b></h1>
-          <p><i><a href="@($"/host/{sensorPoco.ParentId}")">@sensorPoco.Parent.Name</a></i></p>
-        </MudPaper>
-      </MudItem>
-    </MudGrid>
-    <MudGrid>
-      <MudItem xs="6">
-        <BigCardComp Title="Properties">
-          <div class="pb-4">
-            <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="DeleteSensor">Delete</MudButton>
-          </div>
-          <table class="table table-bordered table-hover">
-            <thead>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Parent (Host)</td>
-                <td>
-                    <MudLink Href="@($"/host/{sensorPoco.ParentId}")">@sensorPoco.Parent.Name</MudLink>
-                </td>
-              </tr>
-              <tr>
-                <td>Enabled</td>
-                <td><EditableTextComponent Entity="@sensorPoco" TItem="bool" InputType="checkbox" @bind-Value="@sensorPoco.Enabled"></EditableTextComponent></td>
-              </tr>
-              <tr>
-                <td>Id</td>
-                <td>@sensorPoco.Id</td>
-              </tr>
-              <tr>
-                <td>SecretToken</td>
-                <td>@sensorPoco.SecretToken</td>
-              </tr>
-              <tr>
-                <td>Created</td>
-                <td>@sensorPoco.Created</td>
-              </tr>
-              <tr>
-                <td>Name</td>
-                <td><b><EditableTextComponent Entity="@sensorPoco" TItem="string" @bind-Value="@sensorPoco.Name"></EditableTextComponent></b></td>
-              </tr>
-              <tr>
-                <td>TextId</td>
-                <td><b><EditableTextComponent Entity="@sensorPoco" TItem="string" @bind-Value="@sensorPoco.TextId"></EditableTextComponent></b></td>
-              </tr>
-              <tr>
-                <td>Type</td>
-                <td><b><EditableTextComponent InputType="select" Entity="@sensorPoco" TItem="SensorType" @bind-Value="@sensorPoco.Type"></EditableTextComponent></b></td>
-              </tr>
-              <tr>
-                <td>Grace period</td>
-                <td><EditableTextComponent Entity="@sensorPoco" TItem="int" @bind-Value="@sensorPoco.GracePeriod"></EditableTextComponent></td>
-              </tr>
-              <tr>
-                <td>Interval</td>
-                <td><EditableTextComponent Entity="@sensorPoco" TItem="int" @bind-Value="@sensorPoco.Interval"></EditableTextComponent></td>
-              </tr>
-              <tr>
-                <td>Parameters</td>
-                <td><EditableTextComponent Entity="@sensorPoco" TItem="string" @bind-Value="@sensorPoco.Parameters"></EditableTextComponent></td>
-              </tr>
-            </tbody>
-          </table>
-        </BigCardComp>
-        <BigCardComp Title="Sensor URL">
-          <table class="table table-bordered table-hover">
-            <tbody>
-              <tr>
-                <td>BaseUrl:</td>
-                <td>@_PNTMDApi.GetSensorEventUrl(sensorPoco)</td>
-              </tr>
-              <tr>
-                <td>Template</td>
-                <td>@(_PNTMDApi.GetSensorEventUrl(sensorPoco, "code", "msg"))</td>
-              </tr>
-              <tr>
-                <td>Example:</td>
-                <td>@(_PNTMDApi.GetSensorEventUrl(sensorPoco, "200", "Hello"))</td>
-              </tr>
-            </tbody>
-          </table>
-        </BigCardComp>
-      </MudItem>
-      <MudItem xs="6">
-        <BigCardComp Title="Subscribed notification rules">
-          @if (notificationRulesForSensor != null)
-          {
-            @if (notificationRulesForSensor.Any())
-            {
-              <MudList>
-                @foreach (var notificationRule in notificationRulesForSensor)
-                {
-                  <MudListItem>
-                    <MudGrid>
-                      <MudItem xs="10">
-                          <a href="notificationrule/edit/@notificationRule.Id">@notificationRule.Name</a>
-                        </MudItem>
-                      <MudItem xs="2">
-                        <a href="" @onclick:preventDefault="true" @onclick="() => DeleteSubscribedNotification(notificationRule)">
-                          <MudIcon Icon="@Icons.Material.Filled.DeleteForever"></MudIcon>
-                        </a>
-                      </MudItem>
-                    </MudGrid>
-                  </MudListItem>
-                  <MudDivider/>
-                }
-              </MudList>
-            }
-            else
-            {
-              <p><i>No notification rules linked</i></p>
-            }
-            @if (notificationRulesSelectList.Any())
-            {
-              <MudGrid Class="align-center">
-                <MudItem xs="8">
-                  <SelectComponent Options="notificationRulesSelectList" @bind-Value="@SelectedNewNotificationRule"></SelectComponent>
-                </MudItem>
-                <MudItem xs="4" >
-                  <MudButton Variant="Variant.Filled"  StartIcon="@Icons.Material.Filled.Save" Color="Color.Info" Size="Size.Medium" OnClick="LinkNotificationRule">Link</MudButton>
-                </MudItem>
-              </MudGrid>
-            }
-          }
-        </BigCardComp>
-        <BigCardComp Title="Events">
-          @if (eventEntities != null)
-          {
-            <table class="table table-hover table-striped">
-              <thead class="thead-sm">
-                <tr>
-                  <th>#</th>
-                  <th>time of event</th>
-                  <th>code</th>
-                  <th>msg</th>
-                  <th>source</th>
-                </tr>
-              </thead>
-              <tbody>
-                @foreach (var e in eventEntities)
-                {
-                  <tr>
-                    <td>
-                      @if (e.IsSuccess)
-                      {
-                        <MudIcon Icon="@Icons.Material.Filled.CheckBox" Color="Color.Success"></MudIcon>
-                      }
-                      else
-                      {
-                        <MudIcon Icon="@Icons.Material.Filled.Error" Color="Color.Error"></MudIcon>
-                      }
+    <MudContainer>
+        <MudGrid>
+            <MudItem xs="12">
+                <MudPaper Class="pa-3 ma-2 mt-4">
+                    <h1>Sensor - <b>@sensorPoco.Name</b></h1>
+                    <p><i><a href="@($"/host/{sensorPoco.ParentId}")">@sensorPoco.Parent.Name</a></i></p>
+                </MudPaper>
+            </MudItem>
+        </MudGrid>
+        <MudGrid>
+            <MudItem xs="6">
+                <BigCardComp Title="Properties">
+                    <div class="pb-4">
+                        <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="DeleteSensor">Delete</MudButton>
+                    </div>
+                    <table class="table table-bordered table-hover">
+                        <thead>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Parent (Host)</td>
+                                <td>
+                                    <MudLink Href="@($"/host/{sensorPoco.ParentId}")">@sensorPoco.Parent.Name</MudLink>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Enabled</td>
+                                <td><EditableTextComponent Entity="@sensorPoco" TItem="bool" InputType="checkbox" @bind-Value="@sensorPoco.Enabled"></EditableTextComponent></td>
+                            </tr>
+                            <tr>
+                                <td>Id</td>
+                                <td>@sensorPoco.Id</td>
+                            </tr>
+                            <tr>
+                                <td>SecretToken</td>
+                                <td>@sensorPoco.SecretToken</td>
+                            </tr>
+                            <tr>
+                                <td>Created</td>
+                                <td>@sensorPoco.Created</td>
+                            </tr>
+                            <tr>
+                                <td>Name</td>
+                                <td><b><EditableTextComponent Entity="@sensorPoco" TItem="string" @bind-Value="@sensorPoco.Name"></EditableTextComponent></b></td>
+                            </tr>
+                            <tr>
+                                <td>TextId</td>
+                                <td><b><EditableTextComponent Entity="@sensorPoco" TItem="string" @bind-Value="@sensorPoco.TextId"></EditableTextComponent></b></td>
+                            </tr>
+                            <tr>
+                                <td>Type</td>
+                                <td><b><EditableTextComponent InputType="select" Entity="@sensorPoco" TItem="SensorType" @bind-Value="@sensorPoco.Type"></EditableTextComponent></b></td>
+                            </tr>
+                            <tr>
+                                <td>Grace period</td>
+                                <td><EditableTextComponent Entity="@sensorPoco" TItem="int" @bind-Value="@sensorPoco.GracePeriod"></EditableTextComponent></td>
+                            </tr>
+                            <tr>
+                                <td>Interval</td>
+                                <td><EditableTextComponent Entity="@sensorPoco" TItem="int" @bind-Value="@sensorPoco.Interval"></EditableTextComponent></td>
+                            </tr>
+                            <tr>
+                                <td>Parameters</td>
+                                <td><EditableTextComponent Entity="@sensorPoco" TItem="string" @bind-Value="@sensorPoco.Parameters"></EditableTextComponent></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </BigCardComp>
+                <BigCardComp Title="Sensor URL">
+                    <table class="table table-bordered table-hover">
+                        <tbody>
+                            <tr>
+                                <td>BaseUrl:</td>
+                                <td>@_PNTMDApi.GetSensorEventUrl(sensorPoco)</td>
+                            </tr>
+                            <tr>
+                                <td>Template</td>
+                                <td>@(_PNTMDApi.GetSensorEventUrl(sensorPoco, "code", "msg"))</td>
+                            </tr>
+                            <tr>
+                                <td>Example:</td>
+                                <td>@(_PNTMDApi.GetSensorEventUrl(sensorPoco, "200", "Hello"))</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </BigCardComp>
+            </MudItem>
+            <MudItem xs="6">
+                <BigCardComp Title="Subscribed notification rules">
+                    @if (notificationRulesForSensor != null)
+                    {
+                        @if (notificationRulesForSensor.Any())
+                        {
+                            <MudList>
+                                @foreach (var notificationRule in notificationRulesForSensor)
+                                {
+                                    <MudListItem>
+                                        <MudGrid>
+                                            <MudItem xs="10">
+                                                <a href="notificationrule/edit/@notificationRule.Id">@notificationRule.Name</a>
+                                            </MudItem>
+                                            <MudItem xs="2">
+                                                <a href="" @onclick:preventDefault="true" @onclick="() => DeleteSubscribedNotification(notificationRule)">
+                                                    <MudIcon Icon="@Icons.Material.Filled.DeleteForever"></MudIcon>
+                                                </a>
+                                            </MudItem>
+                                        </MudGrid>
+                                    </MudListItem>
+                                    <MudDivider />
+                                }
+                            </MudList>
+                        }
+                        else
+                        {
+                            <p><i>No notification rules linked</i></p>
+                        }
+                        @if (notificationRulesSelectList.Any())
+                        {
+                            <MudGrid Class="align-center">
+                                <MudItem xs="8">
+                                    <SelectComponent Options="notificationRulesSelectList" @bind-Value="@SelectedNewNotificationRule"></SelectComponent>
+                                </MudItem>
+                                <MudItem xs="4">
+                                    <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Save" Color="Color.Info" Size="Size.Medium" OnClick="LinkNotificationRule">Link</MudButton>
+                                </MudItem>
+                            </MudGrid>
+                        }
+                    }
+                </BigCardComp>
+                <BigCardComp Title="Events">
+                    @if (eventEntities != null)
+                    {
+                        <table class="table table-hover table-striped">
+                            <thead class="thead-sm">
+                                <tr>
+                                    <th>#</th>
+                                    <th>time of event</th>
+                                    <th>code</th>
+                                    <th>msg</th>
+                                    <th>source</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var e in eventEntities)
+                                {
+                                    <tr>
+                                        <td>
+                                            @if (e.IsSuccess)
+                                            {
+                                                <MudIcon Icon="@Icons.Material.Filled.CheckBox" Color="Color.Success"></MudIcon>
+                                            }
+                                            else
+                                            {
+                                                <MudIcon Icon="@Icons.Material.Filled.Error" Color="Color.Error"></MudIcon>
+                                            }
 
-                    </td>
-                    <td>@e.Created</td>
-                    <td>@e.StatusCode</td>
-                    <td>@e.Message</td>
-                    <td>@e.Source</td>
-                  </tr>
-                }
-              </tbody>
-            </table>
-          }
-          else
-          {
-            <p>Loading...</p>
-          }
-        </BigCardComp>
-      </MudItem>
-    </MudGrid>
-  </MudContainer>
+                                        </td>
+                                        <td>@e.Created</td>
+                                        <td>@e.StatusCode</td>
+                                        <td>@e.Message?.Substring(0, Math.Min(e.Message.Length, 20))</td>
+                                        <td>@e.Source</td>
+                                        <td><MudLink OnClick="@(() => OpenEventDetails(e))"><MudIcon Icon="@Icons.Material.Filled.OpenInNew" /></MudLink></td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                    else
+                    {
+                        <p>Loading...</p>
+                    }
+                </BigCardComp>
+            </MudItem>
+        </MudGrid>
+    </MudContainer>
 }
 
 @code {
-  [Parameter]
-  public Guid Id { get; set; }
+    [Parameter]
+    public Guid Id { get; set; }
 
-  public SensorPoco sensorPoco { get; set; }
+    public SensorPoco sensorPoco { get; set; }
 
-  public List<NotificationRulePoco> notificationRulesForSensor = new List<NotificationRulePoco>();
+    public List<NotificationRulePoco> notificationRulesForSensor = new List<NotificationRulePoco>();
 
-  public List<SelectListItem> notificationRulesSelectList = new List<SelectListItem>();
+    public List<SelectListItem> notificationRulesSelectList = new List<SelectListItem>();
 
-  public List<EventEntityPoco> eventEntities = null;
+    public List<EventEntityPoco> eventEntities = null;
 
-  public string? SelectedNewNotificationRule;
+    public string? SelectedNewNotificationRule;
 
-  public bool linkNotificationButtonDisabled = false;
+    public bool linkNotificationButtonDisabled = false;
 
-  protected override async Task OnInitializedAsync()
-  {
-    sensorPoco = (await _PNTMDApi.Sensors.Get(Id));
-
-    notificationRulesSelectList.Add(new SelectListItem() { Text = "Please select", Value = "" });
-    notificationRulesSelectList.AddRange((await _PNTMDApi.NotificationRules.GetAll()).Select(x => new SelectListItem() { Text = x.Name, Value = x.Id.ToString() }).ToList());
-
-    eventEntities = (await _PNTMDApi.Events.GetEventsForSensor(sensorPoco.Id)).OrderByDescending(e => e.Created).ToList();
-
-    await Update();
-
-    await base.OnInitializedAsync();
-  }
-
-  private async Task Update()
-  {
-    /*var newNotificationRuleEntries = (await _PNTMDApi.NotificationRules.GetNotificationRulesForSensor(Id));
-    notificationRulesForSensor.RemoveAll(i => !newNotificationRuleEntries.Contains(i));
-    newNotificationRuleEntries.Where(n => !notificationRulesForSensor.Contains(n)).ToList().ForEach(n => notificationRulesForSensor.Add(n));*/
-    notificationRulesForSensor = (await _PNTMDApi.NotificationRules.GetNotificationRulesForSensor(Id));
-    await InvokeAsync(StateHasChanged);
-  }
-
-  private async void DeleteSubscribedNotification(NotificationRulePoco notificationRulePoco)
-  {
-    await _PNTMDApi.NotificationRules.UnlinkSensor(notificationRulePoco.Id, sensorPoco.Id);
-    await Update();
-  }
-
-  private async void LinkNotificationRule()
-  {
-    linkNotificationButtonDisabled = true;
-    if (Guid.TryParse(SelectedNewNotificationRule, out var notificationRuleId) && !notificationRulesForSensor.Where(nrs => nrs.Id == notificationRuleId).Any())
+    protected override async Task OnInitializedAsync()
     {
-      await _PNTMDApi.NotificationRules.LinkSensor(notificationRuleId, sensorPoco.Id);
-      await Update();
+        sensorPoco = (await _PNTMDApi.Sensors.Get(Id));
+
+        notificationRulesSelectList.Add(new SelectListItem() { Text = "Please select", Value = "" });
+        notificationRulesSelectList.AddRange((await _PNTMDApi.NotificationRules.GetAll()).Select(x => new SelectListItem() { Text = x.Name, Value = x.Id.ToString() }).ToList());
+
+        eventEntities = (await _PNTMDApi.Events.GetEventsForSensor(sensorPoco.Id)).OrderByDescending(e => e.Created).ToList();
+
+        await Update();
+
+        await base.OnInitializedAsync();
     }
-    linkNotificationButtonDisabled = false;
-    await InvokeAsync(StateHasChanged);
-  }
 
-  private async void DeleteSensor()
-  {
-    DialogHelper.ShowDeleteDialog(DialogService, async () =>
+    private async Task Update()
     {
-      await _PNTMDApi.Sensors.Delete(Id);
-      navigationManager.NavigateTo($"/host/{sensorPoco.ParentId}");
-    });
-  }
+        /*var newNotificationRuleEntries = (await _PNTMDApi.NotificationRules.GetNotificationRulesForSensor(Id));
+        notificationRulesForSensor.RemoveAll(i => !newNotificationRuleEntries.Contains(i));
+        newNotificationRuleEntries.Where(n => !notificationRulesForSensor.Contains(n)).ToList().ForEach(n => notificationRulesForSensor.Add(n));*/
+        notificationRulesForSensor = (await _PNTMDApi.NotificationRules.GetNotificationRulesForSensor(Id));
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async void DeleteSubscribedNotification(NotificationRulePoco notificationRulePoco)
+    {
+        await _PNTMDApi.NotificationRules.UnlinkSensor(notificationRulePoco.Id, sensorPoco.Id);
+        await Update();
+    }
+
+    private async void LinkNotificationRule()
+    {
+        linkNotificationButtonDisabled = true;
+        if (Guid.TryParse(SelectedNewNotificationRule, out var notificationRuleId) && !notificationRulesForSensor.Where(nrs => nrs.Id == notificationRuleId).Any())
+        {
+            await _PNTMDApi.NotificationRules.LinkSensor(notificationRuleId, sensorPoco.Id);
+            await Update();
+        }
+        linkNotificationButtonDisabled = false;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private void OpenEventDetails(EventEntityPoco eventEntityPoco)
+    {
+        EventDialogComp.Show(DialogService, eventEntityPoco);
+    }
+
+    private async void DeleteSensor()
+    {
+        DialogHelper.ShowDeleteDialog(DialogService, async () =>
+        {
+            await _PNTMDApi.Sensors.Delete(Id);
+            navigationManager.NavigateTo($"/host/{sensorPoco.ParentId}");
+        });
+    }
 }

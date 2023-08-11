@@ -1,4 +1,5 @@
 ﻿@page "/host/{Id:guid}"
+@attribute [Authorize]
 @using PNMT.ApiClient.Data;
 @using PNMT.WebApp.Components
 @using PNMT.WebApp.Models.Forms;
@@ -8,119 +9,128 @@
 @inject PNMTDApi _PNTMDApi
 @inject IDialogService DialogService
 
+
 <MudContainer>
-  <MudGrid>
-    <MudItem xs="12">
-      <MudGrid>
+    <MudGrid>
         <MudItem xs="12">
-          <MudPaper Class="pa-3 ma-2 mt-4"><h1>Host - <b>@hostPoco.Name</b></h1></MudPaper>
+            <MudGrid>
+                <MudItem xs="12">
+                    <MudPaper Class="pa-3 ma-2 mt-4"><h1>Host - <b>@hostPoco.Name</b></h1></MudPaper>
+                </MudItem>
+            </MudGrid>
         </MudItem>
-      </MudGrid>
-    </MudItem>
-  </MudGrid>
-  <MudGrid>
-    <MudItem xs="6">
-      <BigCardComp Title="Properties">
-        <div class="pb-4">
-          <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="DeleteHost">Delete</MudButton>
-        </div>
-        <table class="table table-bordered table-hover">
-          <thead>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Enabled</td>
-              <td><EditableTextComponent Entity="@hostPoco" TItem="bool" InputType="checkbox" @bind-Value="@hostPoco.Enabled"></EditableTextComponent></td>
-            </tr>
-            <tr>
-              <td>Id</td>
-              <td>@hostPoco.Id</td>
-            </tr>
-            <tr>
-              <td>Name</td>
-              <td><b><EditableTextComponent Entity="@hostPoco" TItem="string" @bind-Value="@hostPoco.Name"></EditableTextComponent></b></td>
-            </tr>
-            <tr>
-              <td>Location</td>
-              <td><EditableTextComponent Entity="@hostPoco" TItem="string" @bind-Value="@hostPoco.Location"></EditableTextComponent></td>
-            </tr>
-            <tr>
-              <td>Notes</td>
-              <td><EditableTextComponent Entity="@hostPoco" TItem="string" @bind-Value="@hostPoco.Notes"></EditableTextComponent></td>
-            </tr>
-            <tr>
-              <td>Created</td>
-              <td>@hostPoco.Created</td>
-            </tr>
-          </tbody>
-        </table>
-      </BigCardComp>
-    </MudItem>
-    <MudItem xs="6">
-      <BigCardComp Title="Sensors">
-        <div class="pb-4">
-          <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Add" Color="Color.Secondary" Href="@($"/sensor/new/{hostPoco.Id}")">Create</MudButton>
-        </div>
-        <table class="table table-hover table-striped">
-          <thead class="thead-small">
-            <tr>
-              <th scope="col">#</th>
-              <th scope="col">Name</th>
-              <th scope="col">Code</th>
-              <th scope="col">Msg</th>
-            </tr>
-          </thead>
-          <tbody>
-            @foreach (var sensor in hostStatePoco.Sensors)
-            {
-              <tr>
-                <td>
-                  @if (sensor.IsSuccess)
-                  {
-                    <MudIcon Icon="@Icons.Material.Filled.CheckBox" Color="Color.Success"></MudIcon>
-                  }
-                  else
-                  {
-                    <MudIcon Icon="@Icons.Material.Filled.Error" Color="Color.Error"></MudIcon>
-                  }
-                </td>
-                <td>
-                  <MudLink Href="@($"/sensor/{sensor.Id}")">@sensor.Name</MudLink>
-                </td>
-                <td>@sensor.LastCode</td>
-                <td>@sensor.LastMessage</td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </BigCardComp>
-    </MudItem>
-  </MudGrid>
+    </MudGrid>
+    <MudGrid>
+        <MudItem xs="6">
+            <BigCardComp Title="Properties">
+                <div class="pb-4">
+                    <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="DeleteHost">Delete</MudButton>
+                </div>
+                <table class="table table-bordered table-hover">
+                    <thead>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Enabled</td>
+                            <td><EditableTextComponent Entity="@hostPoco" TItem="bool" InputType="checkbox" @bind-Value="@hostPoco.Enabled"></EditableTextComponent></td>
+                        </tr>
+                        <tr>
+                            <td>Id</td>
+                            <td>@hostPoco.Id</td>
+                        </tr>
+                        <tr>
+                            <td>Name</td>
+                            <td><b><EditableTextComponent Entity="@hostPoco" TItem="string" @bind-Value="@hostPoco.Name"></EditableTextComponent></b></td>
+                        </tr>
+                        <tr>
+                            <td>Location</td>
+                            <td><EditableTextComponent Entity="@hostPoco" TItem="string" @bind-Value="@hostPoco.Location"></EditableTextComponent></td>
+                        </tr>
+                        <tr>
+                            <td>Notes</td>
+                            <td><EditableTextComponent Entity="@hostPoco" TItem="string" @bind-Value="@hostPoco.Notes"></EditableTextComponent></td>
+                        </tr>
+                        <tr>
+                            <td>Created</td>
+                            <td>@hostPoco.Created</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </BigCardComp>
+        </MudItem>
+        <MudItem xs="6">
+            <BigCardComp Title="Sensors">
+                <div class="pb-4">
+                    <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Add" Color="Color.Secondary" Href="@($"/sensor/new/{hostPoco.Id}")">Create</MudButton>
+                </div>
+                <table class="table table-hover table-striped">
+                    <thead class="thead-small">
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">Code</th>
+                            <th scope="col">Msg</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var sensor in hostStatePoco.Sensors)
+                        {
+                            <tr>
+                                <td>
+                                    @if (sensor.Enabled)
+                                    {
+                                        @if (sensor.IsSuccess)
+                                        {
+                                            <MudIcon Icon="@Icons.Material.Filled.CheckBox" Color="Color.Success"></MudIcon>
+                                        }
+                                        else
+                                        {
+                                            <MudIcon Icon="@Icons.Material.Filled.Error" Color="Color.Error"></MudIcon>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <MudIcon Icon="@Icons.Material.Filled.PowerOff" Color="Color.Default"></MudIcon>
+                                    }
+
+                                </td>
+                                <td>
+                                    <MudLink Href="@($"/sensor/{sensor.Id}")">@sensor.Name</MudLink>
+                                </td>
+                                <td>@sensor.LastCode</td>
+                                <td>@sensor.LastMessage</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </BigCardComp>
+        </MudItem>
+    </MudGrid>
 </MudContainer>
 
 @code {
-  [Parameter]
-  public Guid Id { get; set; }
+    [Parameter]
+    public Guid Id { get; set; }
 
-  public HostPoco hostPoco = new HostPoco();
+    public HostPoco hostPoco = new HostPoco();
 
-  public HostStatePoco hostStatePoco = new HostStatePoco();
+    public HostStatePoco hostStatePoco = new HostStatePoco();
 
-  protected override async Task OnInitializedAsync()
-  {
-    hostPoco = (await _PNTMDApi.Hosts.Get(Id));
-
-    hostStatePoco = (await _PNTMDApi.Hosts.GetHostWithSensors(Id));
-
-    await base.OnInitializedAsync();
-  }
-
-  private async void DeleteHost()
-  {
-    DialogHelper.ShowDeleteDialog(DialogService, async () =>
+    protected override async Task OnInitializedAsync()
     {
-      await _PNTMDApi.Hosts.Delete(Id);
-      navigationManager.NavigateTo("/hosts");
-    });
-  }
+        hostPoco = (await _PNTMDApi.Hosts.Get(Id));
+
+        hostStatePoco = (await _PNTMDApi.Hosts.GetHostWithSensors(Id));
+
+        await base.OnInitializedAsync();
+    }
+
+    private async void DeleteHost()
+    {
+        DialogHelper.ShowDeleteDialog(DialogService, async () =>
+        {
+            await _PNTMDApi.Hosts.Delete(Id);
+            navigationManager.NavigateTo("/hosts");
+        });
+    }
 }

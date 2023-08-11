@@ -6,16 +6,24 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>052a33a6-f313-45cf-bc4b-4ee573952ed3</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <DockerfileContext>..\..</DockerfileContext>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.18.1" />
     <PackageReference Include="MudBlazor" Version="6.8.0" />
+    <PackageReference Include="Serilog.Extensions.Logging.File" Version="3.0.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\PNMTD\PNMT.ApiClient\PNMT.ApiClient.csproj" />
     <ProjectReference Include="..\..\PNMTD\PNMTD.Lib\PNMTD.Lib.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="users.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
 </Project>

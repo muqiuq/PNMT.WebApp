@@ -1,0 +1,63 @@
+﻿@using PNMTD.Lib.Models.Poco;
+<MudDialog>
+    <DialogContent>
+        <table class="table table-bordered table-hover">
+            <thead>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Id</td>
+                    <td>
+                        @EventEntity.Id
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Created
+                        <MudTooltip Text="Moment in time when server received the event"><MudIcon Icon="@Icons.Material.Filled.Info"/></MudTooltip>
+                    </td>
+                    <td>
+                        @EventEntity.Created
+                    </td>
+                </tr>
+                <tr>
+                    <td>Source</td>
+                    <td>
+                        @EventEntity.Source
+                    </td>
+                </tr>
+                <tr>
+                    <td>Code</td>
+                    <td>
+                        @EventEntity.StatusCode
+                    </td>
+                </tr>
+                <tr>
+                    <td>Message</td>
+                    <td>
+                        @EventEntity.Message
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </DialogContent>
+</MudDialog>
+
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+
+    [Parameter] public EventEntityPoco EventEntity { get; set; }
+
+    void Cancel() => MudDialog.Cancel();
+
+    public static void Show(IDialogService dialogService, EventEntityPoco eventEntityPoco)
+    {
+        var parameters = new DialogParameters<EventDialogComp>();
+        parameters.Add(x => x.EventEntity, eventEntityPoco);
+
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Medium };
+
+        dialogService.Show<EventDialogComp>("Event details", parameters, options);
+    }
+}
+

@@ -66,3 +66,8 @@
 	.thead-small > tr > th {
 		color: #6e707e !important;
 	}
+
+
+.navbar-bg {
+	background-color: #ffffff;
+}

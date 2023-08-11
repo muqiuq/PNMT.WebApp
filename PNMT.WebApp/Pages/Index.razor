@@ -1,136 +1,149 @@
 ﻿@page "/"
 @using PNMT.ApiClient.Data;
+@using PNMT.WebApp.Pages.Sensors
 @using PNMTD.Lib.Models.Poco;
 @using PNMT.WebApp.Components.Dashboard;
 @using PNMT.WebApp.Components;
 @inject NavigationManager navigationManager
 @inject PNMTDApi _PNTMDApi
+@attribute [Authorize]
 
 <PageTitle>PNMT</PageTitle>
 
 <MudOverlay Visible="isLoading" DarkBackground="true" Absolute="true">
-  <MudProgressCircular Color="Color.Secondary" Indeterminate="true" />
+    <MudProgressCircular Color="Color.Secondary" Indeterminate="true" />
 </MudOverlay>
 
 <MudContainer>
-  <MudGrid>
-    <CardDashboardComp Icon="@Icons.Material.Filled.Router" Title="Hosts" Value="@NumberOfHosts"></CardDashboardComp>
-    <CardDashboardComp Icon="@Icons.Material.Filled.Thermostat" Title="Sensors" Value="@NumberOfSensors"></CardDashboardComp>
-    <CardDashboardComp Icon="@Icons.Material.Filled.Dangerous" LeftBoarderCss="border-left-danger" TitleCss="mud-error-text" Title="Failures" Value="@allHostsWithErrors.Count()"></CardDashboardComp>
-  </MudGrid>
+    <MudGrid>
+        <CardDashboardComp Icon="@Icons.Material.Filled.Router" Title="Hosts" Value="@NumberOfHosts"></CardDashboardComp>
+        <CardDashboardComp Icon="@Icons.Material.Filled.Thermostat" Title="Sensors" Value="@NumberOfSensors"></CardDashboardComp>
+        <CardDashboardComp Icon="@Icons.Material.Filled.Dangerous" LeftBoarderCss="border-left-danger" TitleCss="mud-error-text" Title="Failures" Value="@allHostsWithErrors.Count()"></CardDashboardComp>
+    </MudGrid>
 
-  <MudGrid>
-    <MudItem xs="6">
-      @foreach (var host in allHostsWithErrors)
-      {
-        <div class="card shadow mb-4">
-          <div class="card-header py-3 d-flex flex-row align-items-center justify-space-between">
-            <h2 class="m-0 font-weight-bold mud-error-text">
-              <MudIcon Icon="@Icons.Material.Filled.Dangerous" Class="icon-pos-fix-2" />
-              <b>@host.Name</b>
-            </h2>
-            <MudLink Href="@($"/host/{host.Id}")" Class="object-right">
-              <MudIcon Icon="@Icons.Material.Filled.OpenInNew"></MudIcon>
-            </MudLink>
-          </div>
-          <div class="card-body">
-            <table class="table table-bordered table-hover table-striped">
-              <thead class="thead-small">
-                <tr>
-                  <th>Name</th>
-                  <th>Code</th>
-                  <th>Since</th>
-                </tr>
-              </thead>
-              <tbody>
-                @foreach (var sensor in host.Sensors.Where(s => !s.IsSuccess).ToList())
-                {
-                  <tr>
-                    <td>
-                      <div class="d-flex">
-                        <div class="d-inline"><MudIcon Icon="@Icons.Material.Filled.Sensors" Class="text-grey-700 icon-pos-fix-2 icon-base-some-space"></MudIcon></div>
-                        <div class="d-inline"><MudLink Href="@($"/sensor/{sensor.Id}")">@sensor.Name</MudLink></div>
-                      </div>
-                    </td>
-                    <td>@sensor.LastCode</td>
-                    <td><b><SinceComp Moment="@(sensor.Since.Value)"></SinceComp></b></td>
-                  </tr>
-                }
-              </tbody>
-            </table>
-          </div>
-        </div>
-      }
-    </MudItem>
-    <MudItem xs="6">
-      <div class="card shadow mb-4">
-        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h2 class="m-0 font-weight-bold text-primary">
-            <i class="icon-pos-fix bi bi-router"></i><b>Hosts</b>
-          </h2>
-        </div>
-        <div class="card-body">
-          <table class="table table-bordered table-hover table-striped">
-            <thead class="thead-small">
-              <tr>
-                <th>Name</th>
-                <th>Location</th>
-                <th>Sensors</th>
-              </tr>
-            </thead>
-            <tbody>
-              @foreach (var host in allHosts)
-              {
-                <tr>
-                  <td><a href="/host/@host.Id">@host.Name</a></td>
-                  <td>@host.Location</td>
-                  <td>@host.Sensors.Count()</td>
-                </tr>
-              }
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </MudItem>
-  </MudGrid>
+    <MudGrid>
+        <MudItem xs="6">
+            @foreach (var host in allHostsWithErrors)
+            {
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3 d-flex flex-row align-items-center justify-space-between">
+                        <h2 class="m-0 font-weight-bold mud-error-text">
+                            <MudIcon Icon="@Icons.Material.Filled.Dangerous" Class="icon-pos-fix-2" />
+                            <b>@host.Name</b>
+                        </h2>
+                        <MudLink Href="@($"/host/{host.Id}")" Class="object-right">
+                            <MudIcon Icon="@Icons.Material.Filled.OpenInNew"></MudIcon>
+                        </MudLink>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-bordered table-hover table-striped">
+                            <thead class="thead-small">
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Code</th>
+                                    <th>Since</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var sensor in host.Sensors.Where(s => !s.IsSuccess).ToList())
+                                {
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex">
+                                                <div class="d-inline"><MudIcon Icon="@Icons.Material.Filled.Sensors" Class="text-grey-700 icon-pos-fix-2 icon-base-some-space"></MudIcon></div>
+                                                <div class="d-inline"><MudLink Href="@($"/sensor/{sensor.Id}")">@sensor.Name</MudLink></div>
+                                            </div>
+                                        </td>
+                                        <td>@sensor.LastCode</td>
+                                        <td><b><SinceComp Moment="@(sensor.Since.Value)"></SinceComp></b></td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            }
+        </MudItem>
+        <MudItem xs="6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h2 class="m-0 font-weight-bold text-primary">
+                        <MudIcon Icon="@Icons.Material.Filled.DeviceHub" Class="icon-pos-fix-2" />
+                        <b>Hosts</b>
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <table class="table table-bordered table-hover table-striped">
+                        <thead class="thead-small">
+                            <tr>
+                                <th>Name</th>
+                                <th>Location</th>
+                                <th>Sensors</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var host in allHosts)
+                            {
+                                <tr>
+                                    <td><a href="/host/@host.Id">@host.Name</a></td>
+                                    <td>@host.Location</td>
+                                    <td>@host.Sensors.Count()</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h2 class="m-0 font-weight-bold text-primary">
+                        <MudIcon Icon="@Icons.Material.Filled.Search" Class="icon-pos-fix-2" />
+                        <b>Search sensor</b>
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <SearchBySecretTokenComp/>
+                </div>
+            </div>
+        </MudItem>
+    </MudGrid>
 </MudContainer>
 
 @code {
-  public bool isLoading { get; set; } = true;
+    public bool isLoading { get; set; } = true;
 
-  List<HostStatePoco> allHosts = new List<HostStatePoco>();
+    List<HostStatePoco> allHosts = new List<HostStatePoco>();
 
-  List<HostStatePoco> allHostsWithErrors
-  {
-    get
+    List<HostStatePoco> allHostsWithErrors
     {
-      return allHosts.Where(h => h.State != HostState.Ok).ToList();
+        get
+        {
+            return allHosts.Where(h => h.State != HostState.Ok && h.Enabled).ToList();
+        }
     }
-  }
 
-  int NumberOfHosts
-  {
-    get
+    int NumberOfHosts
     {
-      return allHosts.Count();
+        get
+        {
+            return allHosts.Count();
+        }
     }
-  }
 
-  int NumberOfSensors
-  {
-    get
+    int NumberOfSensors
     {
-      return allHosts.SelectMany(x => x.Sensors).Count();
+        get
+        {
+            return allHosts.SelectMany(x => x.Sensors).Count();
+        }
     }
-  }
 
-  protected override async Task OnInitializedAsync()
-  {
-    allHosts = (await _PNTMDApi.Hosts.GetAllHostsWithSensors());
+    protected override async Task OnInitializedAsync()
+    {
+        allHosts = (await _PNTMDApi.Hosts.GetAllHostsWithSensors()).Where(h => h.Enabled).ToList();
 
-    await base.OnInitializedAsync();
+        await base.OnInitializedAsync();
 
-    isLoading = false;
-  }
-
+        isLoading = false;
+    }
 }

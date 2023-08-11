@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "PNMT.WebAppCli": {
+      "commandName": "Project",
+      "commandLineArgs": "checkpassword --username admin"
+    }
+  }
+}
