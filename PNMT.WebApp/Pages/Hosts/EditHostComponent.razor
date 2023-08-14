@@ -52,7 +52,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        if(Id.HasValue)
+        if (Id.HasValue)
         {
             hostForm = (await _PNTMDApi.Hosts.Get(Id.Value)).MapPropertiesTo<HostPoco, HostForm>();
         }
@@ -62,7 +62,7 @@
 
     private async void HandleValidSubmit()
     {
-        if(Id.HasValue)
+        if (Id.HasValue)
         {
             await _PNTMDApi.Hosts.Update(hostForm.MapPropertiesTo<HostForm, HostPoco>());
             navigationManager.NavigateTo("/hosts");

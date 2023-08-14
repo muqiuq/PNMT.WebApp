@@ -70,9 +70,14 @@
                                 <td>TextId</td>
                                 <td><b><EditableTextComponent Entity="@sensorPoco" TItem="string" @bind-Value="@sensorPoco.TextId"></EditableTextComponent></b></td>
                             </tr>
+
                             <tr>
                                 <td>Type</td>
                                 <td><b><EditableTextComponent InputType="select" Entity="@sensorPoco" TItem="SensorType" @bind-Value="@sensorPoco.Type"></EditableTextComponent></b></td>
+                            </tr>
+                            <tr>
+                                <td>Source</td>
+                                <td><EditableTextComponent Entity="@sensorPoco" TItem="string" @bind-Value="@sensorPoco.Source"></EditableTextComponent></td>
                             </tr>
                             <tr>
                                 <td>Grace period</td>
@@ -86,6 +91,7 @@
                                 <td>Parameters</td>
                                 <td><EditableTextComponent Entity="@sensorPoco" TItem="string" @bind-Value="@sensorPoco.Parameters"></EditableTextComponent></td>
                             </tr>
+
                         </tbody>
                     </table>
                 </BigCardComp>
