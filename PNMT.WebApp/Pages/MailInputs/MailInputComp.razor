@@ -1,0 +1,149 @@
+﻿@page "/mailinput/new"
+@page "/mailinput/edit/{Id:guid}"
+@attribute [Authorize]
+@inject ILogger<MailInputComp> Logger
+@using PNMT.ApiClient.Data;
+@using PNMT.WebApp.Components;
+@using PNMT.WebApp.Models.Forms;
+@using PNMTD.Lib.Helper;
+@using PNMTD.Lib.Models.Poco;
+@using PNMTD.Models.Poco;
+@inject NavigationManager navigationManager
+@inject PNMTDApi _PNTMDApi
+
+<MudOverlay Visible="isLoading" DarkBackground="true" Absolute="true">
+    <MudProgressCircular Color="Color.Secondary" Indeterminate="true" />
+</MudOverlay>
+
+<MudContainer>
+    <h2>@Title</h2>
+    <MudGrid>
+        <MudItem xs="6">
+            <BigCardComp Title="Properties">
+                <EditForm Model="@mailInputForm" OnValidSubmit="@HandleValidSubmit" OnInvalidSubmit="HandleInvalidSubmit">
+                    <DataAnnotationsValidator />
+                    @if (!ValidForm)
+                    {
+                        <MudAlert Severity="Severity.Error" Dense="true" Class="my-2"><ValidationSummary /></MudAlert>
+                    }
+                    <MudStack>
+                        <MudCheckBox @bind-Checked="@mailInputForm.Enabled" Label="Enabled"></MudCheckBox>
+                        <MudTextField @bind-Value="mailInputForm.Name" Label="Name" Variant="Variant.Outlined"></MudTextField>
+                        <MudTextField @bind-Value="mailInputForm.SenderTest" Label="Sender test" Variant="Variant.Outlined"></MudTextField>
+                        <MudTextField @bind-Value="mailInputForm.ContentTest" Label="Content test" Variant="Variant.Outlined"></MudTextField>
+                        <MudTextField @bind-Value="mailInputForm.OkTest" Label="Ok test" Variant="Variant.Outlined"></MudTextField>
+                        <MudNumericField @bind-Value="mailInputForm.OkCode" Label="Ok code" Variant="Variant.Outlined"></MudNumericField>
+                        <MudTextField @bind-Value="mailInputForm.FailTest" Label="Fail test" Variant="Variant.Outlined"></MudTextField>
+                        <MudNumericField @bind-Value="mailInputForm.FailTest" Label="Fail code" Variant="Variant.Outlined"></MudNumericField>
+                        <MudNumericField @bind-Value="mailInputForm.DefaultCode" Label="default code" Variant="Variant.Outlined"></MudNumericField>
+                        @if(Hosts != null)
+                        {
+                            <MudAutocomplete Required="true" @bind-Value="selectedHost" @bind-Value:after="SelectedHostChanged" Immediate="true" T="HostPoco" ToStringFunc="h => h?.Name" Label="Host" SearchFunc="SearchHost" CoerceText="true"></MudAutocomplete>
+                        }
+                        @if (Sensors != null)
+                        {
+                            <MudAutocomplete @ref="mudAutocompleteSensorPoco" Required="true" @bind-Value="selectedSensor" Immediate="true" T="SensorPoco" ToStringFunc="s => s?.Name" Label="Sensor output" SearchFunc="SearchSensor" CoerceText="true"></MudAutocomplete>
+                        }
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary" ButtonType="ButtonType.Submit">@(Id == null ? "Add" : "Save")</MudButton>
+                        </MudStack>
+                    </EditForm>
+                </BigCardComp>
+            </MudItem>
+            <MudItem xs="6">
+        </MudItem>
+    </MudGrid>
+</MudContainer>
+
+    @code {
+
+    [Parameter]
+    public Guid? Id { get; set; }
+
+    private MudAutocomplete<SensorPoco> mudAutocompleteSensorPoco;
+
+    public MailInputForm mailInputForm = new MailInputForm();
+
+    private MailInputPoco mailInputRulePoco;
+
+    private List<HostPoco> Hosts;
+
+    private List<SensorPoco> Sensors;
+
+    private HostPoco selectedHost;
+
+    private SensorPoco selectedSensor;
+
+    private bool isLoading = true;
+
+    public string Title => Id == null ? "Add MailInput Rule" : "Edit MailInput Rule";
+
+    bool ValidForm = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Hosts = (await _PNTMDApi.Hosts.GetAll());
+
+        if (Id.HasValue)
+        {
+            mailInputRulePoco = (await _PNTMDApi.MailInputs.Get(Id.Value));
+            mailInputForm = mailInputRulePoco.MapPropertiesTo<MailInputPoco, MailInputForm>();
+            if(mailInputForm.SensorOutputId.HasValue)
+            {
+                var sensor = (await _PNTMDApi.Sensors.Get(mailInputForm.SensorOutputId.Value));
+                selectedHost = Hosts.Where(h => h.Id == sensor.ParentId).Single();
+                SelectedHostChanged();
+                selectedSensor = sensor;
+            }
+        }
+
+        isLoading = false;
+
+        await base.OnInitializedAsync();
+    }
+
+    private void HandleInvalidSubmit()
+    {
+        ValidForm = false;
+    }
+
+    private async Task<IEnumerable<HostPoco>> SearchHost(string value)
+    {
+        if (value == null || value?.Trim() == "") return Hosts;
+        return Hosts.Where(h => h.Name.Contains(value)).ToList();
+    }
+
+    private async Task<IEnumerable<SensorPoco>> SearchSensor(string value)
+    {
+        if (selectedHost == null || Sensors == null) return new List<SensorPoco>();
+        if (value == null || value?.Trim() == "") return Sensors;
+        return Sensors.Where(s => s.Name.Contains(value)).ToList();
+    }
+
+    private async void SelectedHostChanged()
+    {
+        mudAutocompleteSensorPoco?.Clear();
+        if (selectedHost != null)
+        {
+            Sensors = (await _PNTMDApi.Sensors.ByHost(selectedHost.Id));
+            StateHasChanged();
+        }
+    }
+
+    private async void HandleValidSubmit()
+    {
+        ValidForm = true;
+        mailInputForm.SensorOutputId = selectedSensor.Id;
+        if (Id.HasValue)
+        {
+            var updatedMailInputPoco = mailInputForm.MapPropertiesTo<MailInputForm, MailInputPoco>();
+            await _PNTMDApi.MailInputs.Update(updatedMailInputPoco);
+            navigationManager.NavigateTo("/mailinputs");
+        }
+        else
+        {
+            var newMailInputPoco = mailInputForm.MapPropertiesTo<MailInputForm, MailInputPoco>();
+            await _PNTMDApi.MailInputs.AddNew(newMailInputPoco);
+            navigationManager.NavigateTo("/mailinputs");
+        }
+    }
+}
