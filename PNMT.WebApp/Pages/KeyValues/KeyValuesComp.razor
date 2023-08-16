@@ -1,0 +1,202 @@
+﻿@page "/keyvalues"
+@attribute [Authorize]
+@using PNMT.ApiClient.Data;
+@using PNMT.WebApp.Components;
+@using PNMT.WebApp.Models.Forms;
+@using PNMTD.Lib.Helper;
+@using PNMTD.Lib.Models.Enum;
+@using PNMTD.Lib.Models.Poco;
+@inject NavigationManager navigationManager
+@inject PNMTDApi _PNTMDApi
+@inject IDialogService DialogService
+
+<MudOverlay Visible="isLoading" DarkBackground="true" Absolute="true">
+    <MudProgressCircular Color="Color.Secondary" Indeterminate="true" />
+</MudOverlay>
+
+<MudContainer>
+    <MudGrid>
+        <MudItem xs="12">
+            <MudPaper Class="pa-3 mb-1 mt-4">
+                <div class="d-flex">
+                    <div class="d-inline"><h1><MudIcon Icon="@Icons.Material.Filled.Key" Class="icon-base-more-space"></MudIcon></h1></div>
+                    <div class="d-inline">
+                        <h1>
+                            Key Value Store
+                        </h1>
+                    </div>
+                </div>
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+    <div class="pa-3 mb-1 mb-2">
+        <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Add" Color="Color.Success" OnClick="AddNew">
+            Create new
+        </MudButton>
+        <MudPaper Style="@mudPaperCreateNewStyle">
+            <EditForm EditContext="@editContext" OnValidSubmit="@HandleValidSubmit" OnInvalidSubmit="HandleInvalidSubmit">
+                <DataAnnotationsValidator />
+                @if (!ValidForm)
+                {
+                    <MudAlert Severity="Severity.Error" Dense="true" Class="my-2"><ValidationSummary />@AddErrorMessage</MudAlert>
+                }
+                <MudStack>
+                    <MudTextField @bind-Value="keyValueForm.Key" Label="Name" Variant="Variant.Outlined"></MudTextField>
+                    <MudTextField @bind-Value="keyValueForm.Value" Label="Sender test" Variant="Variant.Outlined"></MudTextField>
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" ButtonType="ButtonType.Submit">Add</MudButton>
+                    </MudStack>
+                </EditForm>
+        </MudPaper>
+    </div>
+    
+
+    <MudDataGrid Items="@KeyValues">
+        <Columns>
+            <TemplateColumn Title="Key">
+                <CellTemplate>
+                    @if (context.Item.IsReadOnly)
+                    {
+                        @context.Item.Key
+                    }
+                    else
+                    {
+                        <EditableTextComponent Entity="@context.Item" TItem="string" InputType="text" @bind-Value="@context.Item.Key"></EditableTextComponent>
+                    }
+                </CellTemplate>
+            </TemplateColumn>
+            <TemplateColumn Title="Value">
+                <CellTemplate>
+                    @if (context.Item.IsReadOnly)
+                    {
+                        @context.Item.Value
+                    }
+                    else
+                    {
+                        <EditableTextComponent Entity="@context.Item" TItem="string" InputType="text" @bind-Value="@context.Item.Value"></EditableTextComponent>
+                    }
+                </CellTemplate>
+            </TemplateColumn>
+            <TemplateColumn Title="Note">
+                <CellTemplate>
+                    <EditableTextComponent Entity="@context.Item" TItem="string" InputType="text" @bind-Value="@context.Item.Note"></EditableTextComponent>
+                </CellTemplate>
+            </TemplateColumn>
+            <TemplateColumn Title="Enabled">
+                <CellTemplate>
+                    @if (context.Item.IsReadOnly)
+                    {
+                        @context.Item.Enabled
+                    }
+                    else
+                    {
+                        <EditableTextComponent Entity="@context.Item" TItem="bool" InputType="checkbox" @bind-Value="@context.Item.Enabled"></EditableTextComponent>
+                    }
+                </CellTemplate>
+            </TemplateColumn>
+            <TemplateColumn Title="">
+                <CellTemplate>
+                    @if (!context.Item.IsReadOnly)
+                    {
+                        <MudButton Variant="Variant.Text" StartIcon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="() => DeleteEntry(context.Item)"></MudButton>
+                    }
+                    else
+                    {
+                        <MudIcon Icon="@Icons.Material.Filled.EditOff"></MudIcon>
+                    }
+                </CellTemplate>
+            </TemplateColumn>
+        </Columns>
+    </MudDataGrid>
+</MudContainer>
+
+
+@code {
+    List<KeyValuePoco> KeyValues = new List<KeyValuePoco>();
+
+    KeyValueForm keyValueForm = new KeyValueForm();
+    private ValidationMessageStore? messageStore;
+    private EditContext? editContext;
+
+    private string AddErrorMessage = "";
+
+    private bool isLoading = true;
+
+    protected override void OnInitialized()
+    {
+        editContext = new EditContext(keyValueForm);
+
+        messageStore = new ValidationMessageStore(editContext);
+
+        editContext.OnFieldChanged += OnFormChange;
+
+        base.OnInitialized();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        KeyValues = (await _PNTMDApi.KeyValues.GetAll()).ToList();
+
+        isLoading = false;
+    }
+
+
+    bool ValidForm = true;
+    string mudPaperCreateNewStyle = "display: none;";
+
+    void SetVisiblityCreateNewPaper(bool visible)
+    {
+        mudPaperCreateNewStyle = visible ? "" : "display: none;";
+    }
+
+    void OnFormChange(object sender, FieldChangedEventArgs args)
+    {
+
+    }
+
+    void AddNew()
+    {
+        keyValueForm = new KeyValueForm();
+        editContext = new EditContext(keyValueForm);
+        AddErrorMessage = "";
+        SetVisiblityCreateNewPaper(true);
+    }
+
+    async void HandleValidSubmit()
+    {
+        try
+        {
+            await _PNTMDApi.KeyValues.AddNew(keyValueForm.MapPropertiesTo<KeyValueForm, KeyValuePoco>());
+        }catch(PNMTDApiException ex)
+        {
+            AddErrorMessage = ex.Message;
+            ValidForm = false;
+            StateHasChanged();
+            return;
+        }
+        ValidForm = true;
+        SetVisiblityCreateNewPaper(false);
+        isLoading = true;
+        await OnInitializedAsync();
+        StateHasChanged();
+    }
+
+    void HandleInvalidSubmit()
+    {
+        ValidForm = false;
+    }
+
+    public async void DeleteEntry(KeyValuePoco keyValuePoco)
+    {
+        DialogHelper.ShowDeleteDialog(DialogService, async () =>
+        {
+            await _PNTMDApi.KeyValues.Delete(keyValuePoco.Id);
+            await OnInitializedAsync();
+            StateHasChanged();
+        });
+    }
+
+    public void Dispose()
+    {
+        
+    }
+}
