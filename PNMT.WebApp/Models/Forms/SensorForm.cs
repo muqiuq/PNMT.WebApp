@@ -18,6 +18,8 @@ namespace PNMT.WebApp.Models.Forms
         [Required]
         public bool Enabled { get; set; }
 
+        public bool Ignore { get; set; } = false;
+
         public int Interval { get; set; }
 
         public int GracePeriod { get; set; }

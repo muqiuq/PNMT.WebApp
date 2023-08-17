@@ -46,7 +46,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach (var sensor in host.Sensors.Where(s => !s.IsSuccess).ToList())
+                                @foreach (var sensor in host.Sensors.Where(s => !s.IsSuccess && !s.Ignore).ToList())
                                 {
                                     <tr>
                                         <td>
