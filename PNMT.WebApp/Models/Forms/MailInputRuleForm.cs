@@ -17,6 +17,8 @@ namespace PNMT.WebApp.Models.Forms
 
         public string? SubjectTest { get; set; }
 
+        public string? ExtractMessageRegex { get; set; }
+
         public int? OkCode { get; set; }
 
         public string? OkTest { get; set; }
