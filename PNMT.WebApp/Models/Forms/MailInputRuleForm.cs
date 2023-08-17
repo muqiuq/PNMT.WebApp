@@ -2,7 +2,7 @@
 
 namespace PNMT.WebApp.Models.Forms
 {
-    public class MailInputForm
+    public class MailInputRuleForm
     {
         public Guid Id { get; set; }
 
@@ -11,9 +11,11 @@ namespace PNMT.WebApp.Models.Forms
         [Required(AllowEmptyStrings = false)]
         public string Name { get; set; }
 
-        public string? ContentTest { get; set; }
+        public string? BodyTest { get; set; }
 
-        public string? SenderTest { get; set; }
+        public string? FromTest { get; set; }
+
+        public string? SubjectTest { get; set; }
 
         public int? OkCode { get; set; }
 
@@ -26,7 +28,6 @@ namespace PNMT.WebApp.Models.Forms
         [Required]
         public int DefaultCode { get; set; }
 
-        [Required]
         public Guid? SensorOutputId { get; set; }
     }
 }

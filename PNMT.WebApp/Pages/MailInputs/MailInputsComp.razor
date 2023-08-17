@@ -8,6 +8,7 @@
 @using PNMTD.Lib.Models.Poco;
 @inject NavigationManager navigationManager
 @inject PNMTDApi _PNTMDApi
+@inject IDialogService DialogService
 
 <MudOverlay Visible="isLoading" DarkBackground="true" Absolute="true">
     <MudProgressCircular Color="Color.Secondary" Indeterminate="true" />
@@ -51,16 +52,57 @@
             </TemplateColumn>
             <TemplateColumn Title="Sender">
                 <CellTemplate>
-                    <EditableTextComponent Entity="@context.Item" TItem="string" InputType="string" @bind-Value="@context.Item.SenderTest"></EditableTextComponent>
+                    <EditableTextComponent Entity="@context.Item" TItem="string" InputType="string" @bind-Value="@context.Item.FromTest"></EditableTextComponent>
                 </CellTemplate>
             </TemplateColumn>
+        </Columns>
+    </MudDataGrid>
+
+    <MudGrid>
+        <MudItem xs="12">
+            <MudPaper Class="pa-3 mb-1 mt-4">
+                <div class="d-flex">
+                    <div class="d-inline"><h1><MudIcon Icon="@Icons.Material.Filled.List" Class="icon-base-more-space"></MudIcon></h1></div>
+                    <div class="d-inline">
+                        <h1>
+                            Mail log
+                        </h1>
+                    </div>
+                </div>
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+    <MudDataGrid Items="@MailLogs">
+        <Columns>
+            <TemplateColumn Title="*" Sortable="false">
+                <CellTemplate>
+                    <MudLink OnClick="@(() => OpenMailLogDetails(context.Item))"><MudIcon Icon="@Icons.Material.Filled.OpenInNew" /></MudLink>
+                </CellTemplate>
+            </TemplateColumn>
+            <PropertyColumn Property="x => x.Created" />
+            <PropertyColumn Property="x => x.From" />
+            <PropertyColumn Property="x => x.To" />
+            <TemplateColumn Title="Subject">
+                <CellTemplate>
+                    @context.Item.Subject.Truncate(20)
+                </CellTemplate>
+            </TemplateColumn>
+            <TemplateColumn Title="Subject">
+                <CellTemplate>
+                    @context.Item.Content.Truncate(20)
+                </CellTemplate>
+            </TemplateColumn>
+            <PropertyColumn Property="x => x.Processed" />
+            <PropertyColumn Property="x => x.ProcessedById" />
         </Columns>
     </MudDataGrid>
 </MudContainer>
 
 
 @code {
-    List<MailInputPoco> MailInputs = new List<MailInputPoco>();
+    List<MailInputRulePoco> MailInputs = new List<MailInputRulePoco>();
+
+    List<MailLogPoco> MailLogs = new List<MailLogPoco>();
 
     private bool isLoading = true;
 
@@ -68,7 +110,14 @@
     {
         MailInputs = (await _PNTMDApi.MailInputs.GetAll()).ToList();
 
+        MailLogs = (await _PNTMDApi.MailLogs.GetAll()).ToList();
+
         isLoading = false;
 
+    }
+
+    private void OpenMailLogDetails(MailLogPoco mailLogPoco)
+    {
+        MailLogDialog.Show(DialogService, mailLogPoco);
     }
 }

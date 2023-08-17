@@ -24,13 +24,14 @@
                     <DataAnnotationsValidator />
                     @if (!ValidForm)
                     {
-                        <MudAlert Severity="Severity.Error" Dense="true" Class="my-2"><ValidationSummary /></MudAlert>
+                        <MudAlert Severity="Severity.Error" Dense="true" Class="my-2"><ValidationSummary />@ErrorMessage</MudAlert>
                     }
                     <MudStack>
                         <MudCheckBox @bind-Checked="@mailInputForm.Enabled" Label="Enabled"></MudCheckBox>
                         <MudTextField @bind-Value="mailInputForm.Name" Label="Name" Variant="Variant.Outlined"></MudTextField>
-                        <MudTextField @bind-Value="mailInputForm.SenderTest" Label="Sender test" Variant="Variant.Outlined"></MudTextField>
-                        <MudTextField @bind-Value="mailInputForm.ContentTest" Label="Content test" Variant="Variant.Outlined"></MudTextField>
+                        <MudTextField @bind-Value="mailInputForm.FromTest" Label="Sender test" Variant="Variant.Outlined"></MudTextField>
+                        <MudTextField @bind-Value="mailInputForm.BodyTest" Label="Content test" Variant="Variant.Outlined"></MudTextField>
+                        <MudTextField @bind-Value="mailInputForm.SubjectTest" Label="Subject test" Variant="Variant.Outlined"></MudTextField>
                         <MudTextField @bind-Value="mailInputForm.OkTest" Label="Ok test" Variant="Variant.Outlined"></MudTextField>
                         <MudNumericField @bind-Value="mailInputForm.OkCode" Label="Ok code" Variant="Variant.Outlined"></MudNumericField>
                         <MudTextField @bind-Value="mailInputForm.FailTest" Label="Fail test" Variant="Variant.Outlined"></MudTextField>
@@ -61,9 +62,9 @@
 
     private MudAutocomplete<SensorPoco> mudAutocompleteSensorPoco;
 
-    public MailInputForm mailInputForm = new MailInputForm();
+    public MailInputRuleForm mailInputForm = new MailInputRuleForm();
 
-    private MailInputPoco mailInputRulePoco;
+    private MailInputRulePoco mailInputRulePoco;
 
     private List<HostPoco> Hosts;
 
@@ -72,6 +73,8 @@
     private HostPoco selectedHost;
 
     private SensorPoco selectedSensor;
+
+    private string ErrorMessage = "";
 
     private bool isLoading = true;
 
@@ -86,7 +89,7 @@
         if (Id.HasValue)
         {
             mailInputRulePoco = (await _PNTMDApi.MailInputs.Get(Id.Value));
-            mailInputForm = mailInputRulePoco.MapPropertiesTo<MailInputPoco, MailInputForm>();
+            mailInputForm = mailInputRulePoco.MapPropertiesTo<MailInputRulePoco, MailInputRuleForm>();
             if(mailInputForm.SensorOutputId.HasValue)
             {
                 var sensor = (await _PNTMDApi.Sensors.Get(mailInputForm.SensorOutputId.Value));
@@ -136,16 +139,23 @@
     private async void HandleValidSubmit()
     {
         ValidForm = true;
-        mailInputForm.SensorOutputId = selectedSensor.Id;
+        if(selectedSensor != null)
+        {
+            mailInputForm.SensorOutputId = selectedSensor.Id;
+        }
+        else
+        {
+            mailInputForm.SensorOutputId = null;
+        }
         if (Id.HasValue)
         {
-            var updatedMailInputPoco = mailInputForm.MapPropertiesTo<MailInputForm, MailInputPoco>();
+            var updatedMailInputPoco = mailInputForm.MapPropertiesTo<MailInputRuleForm, MailInputRulePoco>();
             await _PNTMDApi.MailInputs.Update(updatedMailInputPoco);
             navigationManager.NavigateTo("/mailinputs");
         }
         else
         {
-            var newMailInputPoco = mailInputForm.MapPropertiesTo<MailInputForm, MailInputPoco>();
+            var newMailInputPoco = mailInputForm.MapPropertiesTo<MailInputRuleForm, MailInputRulePoco>();
             await _PNTMDApi.MailInputs.AddNew(newMailInputPoco);
             navigationManager.NavigateTo("/mailinputs");
         }
