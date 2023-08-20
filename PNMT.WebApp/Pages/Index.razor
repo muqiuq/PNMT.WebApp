@@ -23,6 +23,15 @@
 
     <MudGrid>
         <MudItem xs="6">
+            @if (allHostsWithErrors?.Count == 0)
+            {
+                <div class="card shadow mb-4">
+                    <div class="card-body">
+                        <h1>Everything is fine</h1>
+                    </div>
+                </div>
+                    
+            }
             @foreach (var host in allHostsWithErrors)
             {
                 <div class="card shadow mb-4">

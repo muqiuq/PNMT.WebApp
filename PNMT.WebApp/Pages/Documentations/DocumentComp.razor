@@ -1,0 +1,65 @@
+﻿@page "/docs"
+@attribute [Authorize]
+@using PNMT.ApiClient.Data;
+@using PNMT.WebApp.Components
+@using PNMT.WebApp.Models.Forms;
+@using PNMTD.Lib.Helper;
+@using PNMTD.Lib.Models.Poco;
+@using PNMTD.Lib.Models;
+@inject NavigationManager navigationManager
+@inject PNMTDApi _PNTMDApi
+@inject IDialogService DialogService
+
+<MudContainer>
+    <MudGrid>
+        <MudItem xs="12">
+            <MudGrid>
+                <MudItem xs="12">
+                    <MudPaper Class="pa-3 ma-2 mt-4"><h1><MudIcon Icon="@Icons.Material.Filled.MenuBook" Class="icon-base-more-space" />Documentation</h1></MudPaper>
+                </MudItem>
+            </MudGrid>
+        </MudItem>
+    </MudGrid>
+    <MudGrid>
+        <MudItem xs="6">
+            <BigCardComp Title="Codes">
+                <h2>Reserved</h2>
+                <p><i>Do NOT use 250 - 299, 450 - 499 for custom values</i></p>
+                <table class="table table-bordered table-hover">
+                    <thead>
+                    </thead>
+                    <tbody>
+                        @foreach(var c in Codes)
+                        {
+                            <tr>
+                                <td>@c.Key</td>
+                                <td>@c.Value</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </BigCardComp>
+        </MudItem>
+    </MudGrid>
+</MudContainer>
+
+@code {
+    public Dictionary<int, string> Codes = new Dictionary<int, string>();
+
+    protected override void OnInitialized()
+    {
+        var typeOfStatusCode = typeof(PNMTStatusCodes);
+
+        var fields = typeOfStatusCode.GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.FlattenHierarchy);
+
+        foreach (var field in fields)
+        {
+            if (!field.IsLiteral) continue;
+
+            Codes.Add((int)field.GetRawConstantValue(), field.Name);
+        }
+
+        base.OnInitialized();
+    }
+
+}
