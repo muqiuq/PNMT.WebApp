@@ -2,7 +2,7 @@
 
 @inherits LayoutComponentBase
 
-<MudThemeProvider />
+<MudThemeProvider Theme="PNMTWebAppTheme" />
 <MudDialogProvider />
 <MudSnackbarProvider />
 
@@ -26,4 +26,13 @@
     {
         _drawerOpen = !_drawerOpen;
     }
+
+    MudTheme PNMTWebAppTheme = new MudTheme()
+        {
+            Palette = new PaletteLight()
+            {
+                Primary = "#0033CC",
+                AppbarBackground = "#0033CC"
+            },
+        };
 }
