@@ -23,7 +23,8 @@
 
     <MudGrid>
         <MudItem xs="6">
-            @if (allHostsWithErrors?.Count == 0)
+
+            @if (allHostsWithErrors?.Count == 0 && uplinkState.IsUp)
             {
                 <div class="card shadow mb-4">
                     <div class="card-body">
@@ -31,6 +32,26 @@
                     </div>
                 </div>
                     
+            }
+            @if(!uplinkState.IsUp)
+            {
+                <div class="card shadow mb-4">
+                    <div class="card-body">
+                        <div class="d-flex">
+                            <div class="d-inline"><h1><MudIcon Icon="@Icons.Material.Filled.OfflineBolt" Class="icon-base-more-space"></MudIcon></h1></div>
+                            <div class="d-inline">
+                                <h1>
+                                    Uplink failure
+                                </h1>
+                                <p><i>
+                                        LastRun: @uplinkState.LastRun <br/> 
+                                        LastSuccessfullRun: @uplinkState.LastSuccessfullRun
+                                </i>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             }
             @foreach (var host in allHostsWithErrors)
             {
@@ -125,6 +146,8 @@
 
     List<HostStatePoco> allHosts = new List<HostStatePoco>();
 
+    UplinkStatePoco uplinkState = new UplinkStatePoco();
+
     List<HostStatePoco> allHostsWithErrors
     {
         get
@@ -152,6 +175,8 @@
     protected override async Task OnInitializedAsync()
     {
         allHosts = (await _PNTMDApi.Hosts.GetAllHostsWithSensors()).Where(h => h.Enabled).ToList();
+
+        uplinkState = (await _PNTMDApi.GetUplinkState());
 
         await base.OnInitializedAsync();
 
