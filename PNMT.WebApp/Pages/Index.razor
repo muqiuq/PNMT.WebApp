@@ -124,7 +124,7 @@
                                             <MudLink Href="@($"/sensor/{e.SensorId}")">@e.SensorName</MudLink>
                                         </td>
                                         <td>@e.StatusCode</td>
-                                        <td><b><SinceComp Moment="@(e.Created)"></SinceComp></b></td>
+                                        <td><b><SinceComp Moment="@(e.Created)" Prepend="" Append="ago"></SinceComp></b></td>
                                     </tr>
                                 }
                             </tbody>

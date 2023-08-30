@@ -4,14 +4,20 @@
     [Parameter]
     public DateTime Moment { get; set; }
 
+    [Parameter]
+    public string Prepend { get; set; } = "since";
+
+    [Parameter]
+    public string Append { get; set; } = "";
+
     public String Value
     {
         get
         {
             var diff = DateTime.Now - Moment;
-            if (diff < TimeSpan.FromMinutes(120)) return $"since {(int)diff.TotalMinutes} min";
-            if (diff < TimeSpan.FromHours(24)) return $"since {(int)diff.TotalHours} h";
-            if (diff < TimeSpan.FromDays(3)) return $"since {(int)diff.TotalDays} d {(int)diff.TotalHours % 24} h";
+            if (diff < TimeSpan.FromMinutes(120)) return $"{Prepend} {(int)diff.TotalMinutes} min {Append}".Trim();
+            if (diff < TimeSpan.FromHours(24)) return $"{Prepend} {(int)diff.TotalHours} h {Append}".Trim();
+            if (diff < TimeSpan.FromDays(3)) return $"{Prepend} {(int)diff.TotalDays} d {(int)diff.TotalHours % 24} h {Append}".Trim();
             return Moment.ToString();
         }
     }
