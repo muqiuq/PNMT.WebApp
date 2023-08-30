@@ -95,6 +95,43 @@
                     </div>
                 </div>
             }
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h2 class="m-0 font-weight-bold text-primary">
+                        <MudIcon Icon="@Icons.Material.Filled.History" Class="icon-pos-fix-2" />
+                        <b>Last error events</b>
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <div class="card-body">
+                        <table class="table table-bordered table-hover table-striped">
+                            <thead class="thead-small">
+                                <tr>
+                                    <th>Host</th>
+                                    <th>Sensor</th>
+                                    <th>Code</th>
+                                    <th>Since</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var e in lastFewEventsWithError)
+                                {
+                                    <tr>
+                                        <td>
+                                            <MudLink Href="@($"/host/{e.HostId}")">@e.HostName</MudLink>
+                                        </td>
+                                        <td>
+                                            <MudLink Href="@($"/sensor/{e.SensorId}")">@e.SensorName</MudLink>
+                                        </td>
+                                        <td>@e.StatusCode</td>
+                                        <td><b><SinceComp Moment="@(e.Created)"></SinceComp></b></td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </MudItem>
         <MudItem xs="6">
             <div class="card shadow mb-4">
@@ -148,6 +185,8 @@
 
     UplinkStatePoco uplinkState = new UplinkStatePoco();
 
+    List<EventEntityPoco> lastFewEventsWithError = new List<EventEntityPoco>();
+
     List<HostStatePoco> allHostsWithErrors
     {
         get
@@ -177,6 +216,8 @@
         allHosts = (await _PNTMDApi.Hosts.GetAllHostsWithSensors()).Where(h => h.Enabled).ToList();
 
         uplinkState = (await _PNTMDApi.GetUplinkState());
+
+        lastFewEventsWithError = (await _PNTMDApi.Events.GetLastFewEventsWithError());
 
         await base.OnInitializedAsync();
 
