@@ -14,32 +14,32 @@
 <h3>@Title</h3>
 
 <MudContainer>
-    <MudGrid>
-        <MudItem xs="12">
-            <MudPaper Class="pa-3 ma-2 mt-4">
-                <h1>New Host</h1>
-            </MudPaper>
-        </MudItem>
-    </MudGrid>
+<MudGrid>
+    <MudItem xs="12">
+        <MudPaper Class="pa-3 ma-2 mt-4">
+            <h1>New Host</h1>
+        </MudPaper>
+    </MudItem>
+</MudGrid>
 
-    <EditForm Model="@hostForm" OnValidSubmit="@HandleValidSubmit" OnInvalidSubmit="InvalidSubmit">
-        <DataAnnotationsValidator />
-        @if (!ValidForm)
-        {
-            <MudAlert Severity="Severity.Error" Dense="true" Class="my-2"><ValidationSummary /></MudAlert>
-        }
-        <MudStack>
-            <MudCheckBox @bind-Checked="@hostForm.Enabled" Label="Enabled"></MudCheckBox>
-            <MudTextField @bind-Value="hostForm.Name" Label="Name" Variant="Variant.Outlined"></MudTextField>
-            <MudTextField @bind-Value="hostForm.Location" Label="Location" Variant="Variant.Outlined"></MudTextField>
-            <MudButton Variant="Variant.Filled" Color="Color.Primary" ButtonType="ButtonType.Submit">@("Create")</MudButton>
-            </MudStack>
-        </EditForm>
-    </MudContainer>
+<EditForm Model="@hostForm" OnValidSubmit="@HandleValidSubmit" OnInvalidSubmit="InvalidSubmit">
+    <DataAnnotationsValidator />
+    @if (!ValidForm)
+    {
+        <MudAlert Severity="Severity.Error" Dense="true" Class="my-2"><ValidationSummary /></MudAlert>
+    }
+    <MudStack>
+        <MudCheckBox @bind-Checked="@hostForm.Enabled" Label="Enabled"></MudCheckBox>
+        <MudTextField @bind-Value="hostForm.Name" Label="Name" Variant="Variant.Outlined"></MudTextField>
+        <MudTextField @bind-Value="hostForm.Location" Label="Location" Variant="Variant.Outlined"></MudTextField>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" ButtonType="ButtonType.Submit">@("Create")</MudButton>
+        </MudStack>
+    </EditForm>
+</MudContainer>
 
 
 
-    @code {
+@code {
 
     [Parameter]
     public Guid? Id { get; set; }

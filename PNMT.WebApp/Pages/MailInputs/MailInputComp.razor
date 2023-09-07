@@ -18,7 +18,7 @@
 <MudContainer>
     <h2>@Title</h2>
     <MudGrid>
-        <MudItem xs="6">
+        <MudItem lg="6" xs="12">
             <BigCardComp Title="Properties">
                 <EditForm Model="@mailInputForm" OnValidSubmit="@HandleValidSubmit" OnInvalidSubmit="HandleInvalidSubmit">
                     <DataAnnotationsValidator />
@@ -51,7 +51,7 @@
                     </EditForm>
                 </BigCardComp>
             </MudItem>
-            <MudItem xs="6">
+            <MudItem lg="6" xs="12">
         </MudItem>
     </MudGrid>
 </MudContainer>

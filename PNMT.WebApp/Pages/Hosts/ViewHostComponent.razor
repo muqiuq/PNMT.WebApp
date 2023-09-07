@@ -21,7 +21,7 @@
         </MudItem>
     </MudGrid>
     <MudGrid>
-        <MudItem xs="6">
+        <MudItem lg="6" xs="12">
             <BigCardComp Title="Properties">
                 <div class="pb-4">
                     <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="DeleteHost">Delete</MudButton>
@@ -58,7 +58,7 @@
                 </table>
             </BigCardComp>
         </MudItem>
-        <MudItem xs="6">
+        <MudItem lg="6" xs="12">
             <BigCardComp Title="Sensors">
                 <div class="pb-4">
                     <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Add" Color="Color.Secondary" Href="@($"/sensor/new/{hostPoco.Id}")">Create</MudButton>
