@@ -1,3 +1,3 @@
-docker build -t registry.uisa.ch/muqiuq/pnmt.webapp:v0.6 .
+# PNMTD
 
-docker push registry.uisa.ch/muqiuq/pnmt.webapp:v0.6
+by Philipp Albrecht <philipp@uisa.ch>
