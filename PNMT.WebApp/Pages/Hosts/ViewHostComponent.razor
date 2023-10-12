@@ -5,10 +5,10 @@
 @using PNMT.WebApp.Models.Forms;
 @using PNMTD.Lib.Helper;
 @using PNMTD.Lib.Models.Poco;
+@using System.Text.Json;
 @inject NavigationManager navigationManager
 @inject PNMTDApi _PNTMDApi
 @inject IDialogService DialogService
-
 
 <MudContainer>
     <MudGrid>
@@ -98,6 +98,7 @@
                                 </td>
                                 <td>
                                     <MudLink Href="@($"/sensor/{sensor.Id}")">@sensor.Name</MudLink>
+
                                 </td>
                                 <td>@sensor.LastCode</td>
                                 <td>@sensor.LastMessage</td>
@@ -129,6 +130,7 @@
         await base.OnInitializedAsync();
     }
 
+
     private async void DeleteHost()
     {
         DialogHelper.ShowDeleteDialog(DialogService, async () =>
@@ -137,4 +139,6 @@
             navigationManager.NavigateTo("/hosts");
         });
     }
+
+
 }

@@ -4,9 +4,12 @@
 @using PNMTD.Lib.Models.Poco;
 @using PNMT.WebApp.Components.Dashboard;
 @using PNMT.WebApp.Components;
+@using System.Text.Json;
 @inject NavigationManager navigationManager
 @inject PNMTDApi _PNTMDApi
 @attribute [Authorize]
+@implements IAsyncDisposable
+@inject IJSRuntime JS
 
 <PageTitle>PNMT</PageTitle>
 
@@ -31,9 +34,9 @@
                         <h1>Everything is fine</h1>
                     </div>
                 </div>
-                    
+
             }
-            @if(!uplinkState.IsUp)
+            @if (!uplinkState.IsUp)
             {
                 <div class="card shadow mb-4">
                     <div class="card-body">
@@ -43,10 +46,11 @@
                                 <h1>
                                     Uplink failure
                                 </h1>
-                                <p><i>
-                                        LastRun: @uplinkState.LastRun <br/> 
+                                <p>
+                                    <i>
+                                        LastRun: @uplinkState.LastRun <br />
                                         LastSuccessfullRun: @uplinkState.LastSuccessfullRun
-                                </i>
+                                    </i>
                                 </p>
                             </div>
                         </div>
@@ -142,25 +146,27 @@
                     </h2>
                 </div>
                 <div class="card-body">
-                    <table class="table table-bordered table-hover table-striped">
-                        <thead class="thead-small">
-                            <tr>
-                                <th>Name</th>
-                                <th>Location</th>
-                                <th>Sensors</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var host in allHosts)
-                            {
-                                <tr>
-                                    <td><a href="/host/@host.Id">@host.Name</a></td>
-                                    <td>@host.Location</td>
-                                    <td>@host.Sensors.Count()</td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
+                    <div>
+                        @foreach (var host in allHosts)
+                        {
+                            
+                            <div class="d-block pa-2">
+                                <MudGrid>    
+                                    <MudItem xs="8">
+                                        <h3><a href="/host/@host.Id">@host.Name</a></h3>
+                                    </MudItem>
+                                    <MudItem xs="4" Class="align-content-end object-right">
+                                        <div style="display: flex; justify-content: flex-end">
+                                            <h3><span style="font-weight:normal;">@host.UpTime30days?.ToString("F2") %</span></h3>
+                                        </div>
+                                        
+                                    </MudItem>
+                                </MudGrid>
+                            </div>
+                            <div class="d-block pt-2 pl-2 pr-2 pb-2 mb-2" style="border-bottom: solid 1px; border-bottom-color: lightgray;" data-timedata="@JsonSerializer.Serialize(host.UptimePerDay.Select(i => i.Value).ToList())">
+                            </div>
+                        }
+                    </div>
                 </div>
             </div>
             <div class="card shadow mb-4">
@@ -171,7 +177,7 @@
                     </h2>
                 </div>
                 <div class="card-body">
-                    <SearchBySecretTokenComp/>
+                    <SearchBySecretTokenComp />
                 </div>
             </div>
         </MudItem>
@@ -222,5 +228,25 @@
         await base.OnInitializedAsync();
 
         isLoading = false;
+    }
+
+    private IJSObjectReference? jsModule;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            jsModule = await JS.InvokeAsync<IJSObjectReference>(
+                "import", "/js/uptimegraph.js");
+        }
+        if(jsModule != null) await jsModule.InvokeVoidAsync("attachuptimegraphtoall", true);
+    }
+
+    async ValueTask IAsyncDisposable.DisposeAsync()
+    {
+        if (jsModule is not null)
+        {
+            await jsModule.DisposeAsync();
+        }
     }
 }
