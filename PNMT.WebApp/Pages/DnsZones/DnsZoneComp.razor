@@ -1,0 +1,147 @@
+﻿@page "/dnszone/{Id:guid}"
+@attribute [Authorize]
+@using PNMT.ApiClient.Data;
+@using PNMT.WebApp.Components
+@using PNMT.WebApp.Models.Forms;
+@using PNMTD.Lib.Helper;
+@using PNMTD.Lib.Models.Poco;
+@using System.Text.Json;
+@inject NavigationManager navigationManager
+@inject PNMTDApi _PNTMDApi
+@inject IDialogService DialogService
+
+
+<MudContainer>
+    <MudGrid>
+        <MudItem xs="12">
+            <MudGrid>
+                <MudItem xs="12">
+                    <MudPaper Class="pa-3 ma-2 mt-4"><h1>Host - <b>@dnsZonePoco.ZoneName</b></h1></MudPaper>
+                </MudItem>
+            </MudGrid>
+        </MudItem>
+    </MudGrid>
+    <MudGrid>
+        <MudItem lg="4" xs="12">
+            <BigCardComp Title="Properties">
+                <div class="pb-4">
+                    <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="DeleteDnsZone">Delete</MudButton>
+                </div>
+                <table class="table table-bordered table-hover">
+                    <thead>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Enabled</td>
+                            <td><EditableTextComponent Entity="@dnsZonePoco" TItem="bool" InputType="checkbox" @bind-Value="@dnsZonePoco.Enabled"></EditableTextComponent></td>
+                        </tr>
+                        <tr>
+                            <td>Id</td>
+                            <td>@dnsZonePoco.Id</td>
+                        </tr>
+                        <tr>
+                            <td>Name</td>
+                            <td>@dnsZonePoco.ZoneName</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </BigCardComp>
+        </MudItem>
+        <MudItem lg="8" xs="12">
+            <BigCardComp Title="Records">
+                @if (dnsZonePoco.ZoneEntries != null)
+                {
+                    <MudDataGrid Items="@dnsZonePoco.ZoneEntries" T="DnsZoneEntryPoco" Dense="true" Bordered="true" Filterable="false" RowsPerPage="50" ColumnResizeMode="ResizeMode.Container">
+                        <Columns>
+                            <HierarchyColumn T="DnsZoneEntryPoco" />
+                            <TemplateColumn Title="#" Filterable="false" SortBy="@(x => x.IsMatch)">
+                                <CellTemplate>
+                                    @if (!context.Item.Ignore)
+                                    {
+                                        @if (context.Item.IsMatch)
+                                        {
+                                            <MudIcon Icon="@Icons.Material.Filled.CheckBox" Color="Color.Success"></MudIcon>
+                                        }
+                                        else
+                                        {
+                                            <MudIcon Icon="@Icons.Material.Filled.Error" Color="Color.Error"></MudIcon>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <MudIcon Icon="@Icons.Material.Filled.PowerOff" Color="Color.Default"></MudIcon>
+                                    }
+                                </CellTemplate>
+                            </TemplateColumn>
+                            <TemplateColumn Title="Name" SortBy="@(x => x.Name)">
+                                <CellTemplate>
+                                    @context.Item.Name
+                                </CellTemplate>
+                            </TemplateColumn>
+                            <TemplateColumn Title="Name" SortBy="@(x => x.RecordType.ToString())">
+                                <CellTemplate>
+                                    @context.Item.RecordType.ToString()
+                                </CellTemplate>
+                            </TemplateColumn>
+                            <PropertyColumn Property="h => h.Updated" Title="Updated" />
+                        </Columns>
+                        <ChildRowContent>
+                            <MudCard>
+                                <table class="table table-bordered table-hover">
+                                    <thead>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Ignore</td>
+                                            <td><EditableTextComponent Entity="@context.Item" TItem="bool" InputType="checkbox" @bind-Value="@context.Item.Ignore"></EditableTextComponent></td>
+                                        </tr>
+                                        <tr>
+                                            <td>TTL</td>
+                                            <td>@context.Item.TTL</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Reference value</td>
+                                            <td>@context.Item.ReferenceValue</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Actual value</td>
+                                            <td>@context.Item.ActualValue</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </MudCard>
+                        </ChildRowContent>
+                        <PagerContent>
+                            <MudDataGridPager T="DnsZoneEntryPoco" />
+                        </PagerContent>
+                    </MudDataGrid>
+                }
+            </BigCardComp>
+        </MudItem>
+    </MudGrid>
+</MudContainer>
+
+@code {
+    [Parameter]
+    public Guid Id { get; set; }
+
+    public DnsZonePoco dnsZonePoco = new DnsZonePoco();
+
+    protected override async Task OnInitializedAsync()
+    {
+        dnsZonePoco = (await _PNTMDApi.DnsZones.Get(Id));
+
+        await base.OnInitializedAsync();
+    }
+
+
+    private async void DeleteDnsZone()
+    {
+        DialogHelper.ShowDeleteDialog(DialogService, async () =>
+        {
+            await _PNTMDApi.DnsZones.Delete(Id);
+            navigationManager.NavigateTo("/dnszones");
+        });
+    }
+
+}
