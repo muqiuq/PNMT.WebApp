@@ -1,4 +1,5 @@
-﻿@page "/dnszone/edit/{Id:guid}"
+﻿@page "/dnszone/new"
+@page "/dnszone/edit/{Id:guid}"
 @attribute [Authorize]
 @using PNMT.ApiClient.Data;
 @using PNMT.WebApp.Components
@@ -32,8 +33,20 @@
         <MudItem lg="12" xs="12">
                 <MudPaper Class="pa-3 ma-2 mt-4">
                     <div class="pb-4 d-flex flex-grow-1 gap-4">
-                        <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Save" Color="Color.Success" OnClick="Save">Save</MudButton>
-                        <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Close" Color="Color.Secondary" Href="@($"/dnszone/{dnsZonePoco.Id}")">Close</MudButton>
+                        <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Save" Color="Color.Success" OnClick="Save">
+                            @if(isNew)
+                            {
+                                @: Create new
+                            }
+                            else
+                            {
+                                @: Save
+                            }
+                        </MudButton>
+                        @if(!isNew)
+                        {
+                            <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Close" Color="Color.Secondary" Href="@($"/dnszone/{dnsZonePoco.Id}")">Close</MudButton>
+                        }
                     </div>
             </MudPaper>
         </MudItem>
@@ -57,7 +70,9 @@ function updateParentNodeDataset(textareaElement, value) {
 
 @code {
     [Parameter]
-    public Guid Id { get; set; }
+    public Guid? Id { get; set; }
+
+    private bool isNew = false;
 
     public DnsZonePoco dnsZonePoco = new DnsZonePoco();
 
@@ -67,9 +82,13 @@ function updateParentNodeDataset(textareaElement, value) {
 
     protected override async Task OnInitializedAsync()
     {
-        dnsZonePoco = (await _PNTMDApi.DnsZones.Get(Id));
-
-        originalValue = dnsZonePoco.ZoneFileContent;
+        if (Id == null) {
+            isNew = true;
+        }
+        else {
+            dnsZonePoco = (await _PNTMDApi.DnsZones.Get(Id.Value));
+            originalValue = dnsZonePoco.ZoneFileContent;
+        }
 
         await base.OnInitializedAsync();
     }
@@ -98,8 +117,21 @@ function updateParentNodeDataset(textareaElement, value) {
 
     private async Task Save()
     {
-        await _PNTMDApi.DnsZones.Update(dnsZonePoco);
+        if(isNew)
+        {
+            dnsZonePoco.ZoneName = "new";
+            dnsZonePoco.LastChecked = DateTime.MinValue;
+            string? IdStr = (string)( await _PNTMDApi.DnsZones.AddNew(dnsZonePoco));
+            navigationManager.NavigateTo($"/dnszone/{IdStr}");
+            isNew = false;
+        }
+        else
+        {
+            await _PNTMDApi.DnsZones.Update(dnsZonePoco);
 
-        Snackbar.Add("Saved");
+            Snackbar.Add("Saved");
+        }
+
+        
     }
 }

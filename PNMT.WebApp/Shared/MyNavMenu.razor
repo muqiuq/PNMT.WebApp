@@ -3,27 +3,27 @@
 @inject PNMTDApi _PNTMDApi
 
 <div class="navbar-bg navbar-dark" style="height: 100%; display: flex; flex-direction: column;">
-  <div class="pb-2" style="width: var(--mud-drawer-width,var(--mud-drawer-width-left))">
-    <MudImage Src="img/Logo.jpg" Style="width: var(--mud-drawer-width,var(--mud-drawer-width-left))" />
-  </div>
-  <MudNavMenu>
-    <MudNavLink Icon="@Icons.Material.Filled.Dashboard" Href="/" Match="NavLinkMatch.All">Dashboard</MudNavLink>
-    <MudNavLink Icon="@Icons.Material.Filled.DeviceHub" Href="/hosts" Match="NavLinkMatch.Prefix">Hosts</MudNavLink>
-    <MudNavLink Icon="@Icons.Material.Filled.Notifications" Href="/notificationrules" Match="NavLinkMatch.Prefix">Notification rules</MudNavLink>
-    <MudNavLink Icon="@Icons.Material.Filled.Email" Href="/mailinputs" Match="NavLinkMatch.Prefix">E-Mail Inputs</MudNavLink>
-    <MudNavLink Icon="@Icons.Material.Filled.Key" Href="/keyvalues" Match="NavLinkMatch.Prefix">KeyValues</MudNavLink>
-    <MudNavLink Icon="@Icons.Material.Filled.MenuBook" Href="/docs" Match="NavLinkMatch.Prefix">Documentation</MudNavLink>
-    <MudNavLink Icon="@Icons.Material.Filled.Dns" Href="/dnszones" Match="NavLinkMatch.Prefix">Dns</MudNavLink>
-    <MudNavLink Icon="@Icons.Material.Filled.Logout" Href="/account/logout" Match="NavLinkMatch.Prefix">Logout</MudNavLink>
-  </MudNavMenu>
-  <div class="pb-2 pl-3 mt-3">
-        @if(versionInfo != null)
+    <div class="pb-2" style="width: var(--mud-drawer-width,var(--mud-drawer-width-left))">
+        <MudImage Src="img/Logo.jpg" Style="width: var(--mud-drawer-width,var(--mud-drawer-width-left))" />
+    </div>
+    <MudNavMenu>
+        <MudNavLink Icon="@Icons.Material.Filled.Dashboard" Href="/" Match="NavLinkMatch.All">Dashboard</MudNavLink>
+        <MudNavLink Icon="@Icons.Material.Filled.DeviceHub" Href="/hosts" Match="NavLinkMatch.Prefix">Hosts</MudNavLink>
+        <MudNavLink Icon="@Icons.Material.Filled.Dns" Href="/dnszones" Match="NavLinkMatch.Prefix">Dns</MudNavLink>
+        <MudNavLink Icon="@Icons.Material.Filled.Email" Href="/mailinputs" Match="NavLinkMatch.Prefix">E-Mail Inputs</MudNavLink>
+        <MudNavLink Icon="@Icons.Material.Filled.Notifications" Href="/notificationrules" Match="NavLinkMatch.Prefix">Notification rules</MudNavLink>
+        <MudNavLink Icon="@Icons.Material.Filled.Key" Href="/keyvalues" Match="NavLinkMatch.Prefix">KeyValues</MudNavLink>
+        <MudNavLink Icon="@Icons.Material.Filled.MenuBook" Href="/docs" Match="NavLinkMatch.Prefix">Documentation</MudNavLink>
+        <MudNavLink Icon="@Icons.Material.Filled.Logout" Href="/account/logout" Match="NavLinkMatch.Prefix">Logout</MudNavLink>
+    </MudNavMenu>
+    <div class="pb-2 pl-3 mt-3">
+        @if (versionInfo != null)
         {
             <p><b>@versionInfo.Identity</b></p>
             <p>@versionInfo.Name @versionInfo.Version</p>
             <p>@frontendInfo.Name @frontendInfo.Version</p>
         }
-  </div>
+    </div>
 </div>
 
 @code {

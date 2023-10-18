@@ -10,15 +10,23 @@
 @inject PNMTDApi _PNTMDApi
 @inject IDialogService DialogService
 
+<MudOverlay Visible="isLoading" DarkBackground="true" Absolute="true">
+    <MudProgressCircular Color="Color.Secondary" Indeterminate="true" />
+</MudOverlay>
 
 <MudContainer>
     <MudGrid>
         <MudItem xs="12">
-            <MudGrid>
-                <MudItem xs="12">
-                    <MudPaper Class="pa-3 ma-2 mt-4"><h1>DNS zone - <b>@dnsZonePoco.ZoneName</b></h1></MudPaper>
-                </MudItem>
-            </MudGrid>
+            <MudPaper Class="pa-3 ma-2 mt-4">
+                <div class="d-flex">
+                    <div class="d-flex align-center d-inline"><h1><MudIcon Icon="@Icons.Material.Filled.Dns" Class="icon-base-more-space"></MudIcon></h1></div>
+                    <div class="d-flex align-center d-inline">
+                        <h1>
+                            DNS zone - <b>@dnsZonePoco.ZoneName</b>
+                        </h1>
+                    </div>
+                </div>
+            </MudPaper>
         </MudItem>
     </MudGrid>
     <MudGrid>
@@ -41,11 +49,21 @@
                             <td>@dnsZonePoco.ZoneName</td>
                         </tr>
                         <tr>
-                            <td>Require processing</td>
+                            <td>Requires processing</td>
                             <td>@dnsZonePoco.RequiresProcessing</td>
                         </tr>
                     </tbody>
                 </table>
+            </BigCardComp>
+            <BigCardComp Title="History">
+                @if(logEntries != null) 
+                {
+                    <div class="pb-2"><MudPagination Color="Color.Primary" Count="@(logEntries.Count / 10)" @bind-Selected="@_selected_log_page"/></div>
+                    @foreach(var logEntry in logEntries.Skip(10 * _selected_log_page).Take(10)) 
+                    {
+                        <p><b>@logEntry.Created</b> @logEntry.Message</p>
+                    }
+                }
             </BigCardComp>
         </MudItem>
         <MudItem lg="8" xs="12">
@@ -126,18 +144,30 @@
     [Parameter]
     public Guid Id { get; set; }
 
+    private bool isLoading { get; set; } = true;
+
     public DnsZonePoco dnsZonePoco = new DnsZonePoco();
+
+    public List<DnsZoneLogEntryPoco> logEntries;
+
+    private int _selected_log_page = 1;
 
     protected override async Task OnInitializedAsync()
     {
         dnsZonePoco = (await _PNTMDApi.DnsZones.Get(Id));
 
+        logEntries = (await _PNTMDApi.DnsZones.GetLogs(Id));
+
+
+        isLoading = false;
+
         await base.OnInitializedAsync();
     }
 
 
-    private async void DeleteDnsZone()
+    private void DeleteDnsZone()
     {
+        isLoading = true;
         DialogHelper.ShowDeleteDialog(DialogService, async () =>
         {
             await _PNTMDApi.DnsZones.Delete(Id);
