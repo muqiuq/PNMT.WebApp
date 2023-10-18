@@ -26,7 +26,7 @@
             <MudItem xs="12">
                 <MudPaper Class="pa-3 ma-2 mt-4">
                     <h1>Sensor - <b>@sensorPoco.Name</b></h1>
-                    <p><i><a href="@($"/host/{sensorPoco.ParentId}")">@sensorPoco.Parent.Name</a></i></p>
+                    <p><i><MudLink Href="@($"/host/{sensorPoco.ParentId}")">@sensorPoco.Parent.Name</MudLink></i></p>
                 </MudPaper>
             </MudItem>
         </MudGrid>
@@ -41,26 +41,12 @@
                         </thead>
                         <tbody>
                             <tr>
-                                <td>Parent (Host)</td>
-                                <td>
-                                    <MudLink Href="@($"/host/{sensorPoco.ParentId}")">@sensorPoco.Parent.Name</MudLink>
-                                </td>
-                            </tr>
-                            <tr>
                                 <td>Enabled</td>
                                 <td><EditableTextComponent Entity="@sensorPoco" TItem="bool" InputType="checkbox" @bind-Value="@sensorPoco.Enabled"></EditableTextComponent></td>
                             </tr>
                             <tr>
                                 <td>Ignore</td>
                                 <td><EditableTextComponent Entity="@sensorPoco" TItem="bool" InputType="checkbox" @bind-Value="@sensorPoco.Ignore"></EditableTextComponent></td>
-                            </tr>
-                            <tr>
-                                <td>Id</td>
-                                <td>@sensorPoco.Id</td>
-                            </tr>
-                            <tr>
-                                <td>SecretToken</td>
-                                <td>@sensorPoco.SecretToken</td>
                             </tr>
                             <tr>
                                 <td>Created</td>
@@ -74,7 +60,6 @@
                                 <td>TextId</td>
                                 <td><b><EditableTextComponent Entity="@sensorPoco" TItem="string" @bind-Value="@sensorPoco.TextId"></EditableTextComponent></b></td>
                             </tr>
-
                             <tr>
                                 <td>Type</td>
                                 <td><b><EditableTextComponent InputType="select" Entity="@sensorPoco" TItem="SensorType" @bind-Value="@sensorPoco.Type"></EditableTextComponent></b></td>
@@ -95,7 +80,10 @@
                                 <td>Parameters</td>
                                 <td><EditableTextComponent Entity="@sensorPoco" TItem="string" @bind-Value="@sensorPoco.Parameters"></EditableTextComponent></td>
                             </tr>
-
+                            <tr>
+                                <td>Status</td>
+                                <td>@sensorPoco.Status</td>
+                            </tr>
                         </tbody>
                     </table>
                 </BigCardComp>
@@ -107,10 +95,6 @@
                             <tr>
                                 <td>BaseUrl:</td>
                                 <td>@_PNTMDApi.GetSensorEventUrl(sensorPoco)</td>
-                            </tr>
-                            <tr>
-                                <td>Template</td>
-                                <td>@(_PNTMDApi.GetSensorEventUrl(sensorPoco, "code", "msg"))</td>
                             </tr>
                             <tr>
                                 <td>Example:</td>

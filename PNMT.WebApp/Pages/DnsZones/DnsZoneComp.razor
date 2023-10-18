@@ -165,11 +165,17 @@
     }
 
 
-    private void DeleteDnsZone()
+    private void SetIsLoading()
     {
         isLoading = true;
+        StateHasChanged();
+    }
+
+    private void DeleteDnsZone()
+    {
         DialogHelper.ShowDeleteDialog(DialogService, async () =>
         {
+            SetIsLoading();
             await _PNTMDApi.DnsZones.Delete(Id);
             navigationManager.NavigateTo("/dnszones");
         });
