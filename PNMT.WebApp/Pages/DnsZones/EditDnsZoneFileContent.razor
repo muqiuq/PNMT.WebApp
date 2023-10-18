@@ -1,0 +1,105 @@
+﻿@page "/dnszone/edit/{Id:guid}"
+@attribute [Authorize]
+@using PNMT.ApiClient.Data;
+@using PNMT.WebApp.Components
+@using PNMT.WebApp.Models.Forms;
+@using PNMTD.Lib.Helper;
+@using PNMTD.Lib.Models.Poco;
+@using System.Text.Json;
+@inject NavigationManager navigationManager
+@inject PNMTDApi _PNTMDApi
+@inject IDialogService DialogService
+@inject IJSRuntime JS
+@inject ISnackbar Snackbar
+
+<MudOverlay Visible="@(dnsZonePoco == null)" DarkBackground="true" Absolute="true">
+    <MudProgressCircular Color="Color.Secondary" Indeterminate="true" />
+</MudOverlay>
+
+@if (dnsZonePoco != null)
+{
+<MudContainer>
+    <MudGrid>
+        <MudItem xs="12">
+            <MudGrid>
+                <MudItem xs="12">
+                    <MudPaper Class="pa-3 ma-2 mt-4"><h1>Edit zone file - <b>@dnsZonePoco.ZoneName</b></h1></MudPaper>
+                </MudItem>
+            </MudGrid>
+        </MudItem>
+    </MudGrid>
+    <MudGrid>
+        <MudItem lg="12" xs="12">
+                <MudPaper Class="pa-3 ma-2 mt-4">
+                    <div class="pb-4 d-flex flex-grow-1 gap-4">
+                        <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Save" Color="Color.Success" OnClick="Save">Save</MudButton>
+                        <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Close" Color="Color.Secondary" Href="@($"/dnszone/{dnsZonePoco.Id}")">Close</MudButton>
+                    </div>
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+    <MudGrid>
+        <MudItem lg="12" xs="12">
+            <MudPaper Class="pa-3 ma-2 mt-4">
+                <div class="growing-code-textarea">
+                    <textarea @oninput="UpdateValue" @ref="zoneTextField" @bind="dnsZonePoco.ZoneFileContent" />
+                </div>
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+</MudContainer>
+<script>
+function updateParentNodeDataset(textareaElement, value) {
+    textareaElement.parentNode.dataset.replicatedValue = value;
+}
+</script>
+}
+
+@code {
+    [Parameter]
+    public Guid Id { get; set; }
+
+    public DnsZonePoco dnsZonePoco = new DnsZonePoco();
+
+    string originalValue = "";
+
+    private ElementReference zoneTextField;
+
+    protected override async Task OnInitializedAsync()
+    {
+        dnsZonePoco = (await _PNTMDApi.DnsZones.Get(Id));
+
+        originalValue = dnsZonePoco.ZoneFileContent;
+
+        await base.OnInitializedAsync();
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if(firstRender)
+        {
+            UpdateParentNodeDataset(dnsZonePoco.ZoneFileContent);
+        }
+        base.OnAfterRender(firstRender);
+    }
+
+    private async void UpdateValue(ChangeEventArgs e)
+    {
+        // If you want to replicate the functionality where you were updating the parent node's dataset,
+        // you will need to invoke JavaScript from Blazor since direct DOM manipulation isn't supported in Blazor.
+        await UpdateParentNodeDataset(e.Value.ToString());
+    }
+
+    private async Task UpdateParentNodeDataset(string value)
+    {
+        // Invoking a JavaScript function that updates the dataset of the parent element
+        await JS.InvokeVoidAsync("updateParentNodeDataset", zoneTextField, value);
+    }
+
+    private async Task Save()
+    {
+        await _PNTMDApi.DnsZones.Update(dnsZonePoco);
+
+        Snackbar.Add("Saved");
+    }
+}

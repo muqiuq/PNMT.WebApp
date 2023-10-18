@@ -16,7 +16,7 @@
         <MudItem xs="12">
             <MudGrid>
                 <MudItem xs="12">
-                    <MudPaper Class="pa-3 ma-2 mt-4"><h1>Host - <b>@dnsZonePoco.ZoneName</b></h1></MudPaper>
+                    <MudPaper Class="pa-3 ma-2 mt-4"><h1>DNS zone - <b>@dnsZonePoco.ZoneName</b></h1></MudPaper>
                 </MudItem>
             </MudGrid>
         </MudItem>
@@ -24,8 +24,9 @@
     <MudGrid>
         <MudItem lg="4" xs="12">
             <BigCardComp Title="Properties">
-                <div class="pb-4">
+                <div class="pb-4 d-flex flex-grow-1 gap-4">
                     <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="DeleteDnsZone">Delete</MudButton>
+                    <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Edit" Color="Color.Secondary" Href="@($"/dnszone/edit/{dnsZonePoco.Id}")">Edit</MudButton>
                 </div>
                 <table class="table table-bordered table-hover">
                     <thead>
@@ -36,12 +37,12 @@
                             <td><EditableTextComponent Entity="@dnsZonePoco" TItem="bool" InputType="checkbox" @bind-Value="@dnsZonePoco.Enabled"></EditableTextComponent></td>
                         </tr>
                         <tr>
-                            <td>Id</td>
-                            <td>@dnsZonePoco.Id</td>
-                        </tr>
-                        <tr>
                             <td>Name</td>
                             <td>@dnsZonePoco.ZoneName</td>
+                        </tr>
+                        <tr>
+                            <td>Require processing</td>
+                            <td>@dnsZonePoco.RequiresProcessing</td>
                         </tr>
                     </tbody>
                 </table>
