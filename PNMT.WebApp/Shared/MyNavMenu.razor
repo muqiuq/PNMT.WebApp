@@ -1,4 +1,8 @@
-﻿<div class="navbar-bg navbar-dark" style="height: 100%; display: flex; flex-direction: column;">
+﻿@using PNMT.ApiClient.Data;
+@using PNMTD.Lib.Models.Poco;
+@inject PNMTDApi _PNTMDApi
+
+<div class="navbar-bg navbar-dark" style="height: 100%; display: flex; flex-direction: column;">
   <div class="pb-2" style="width: var(--mud-drawer-width,var(--mud-drawer-width-left))">
     <MudImage Src="img/Logo.jpg" Style="width: var(--mud-drawer-width,var(--mud-drawer-width-left))" />
   </div>
@@ -12,4 +16,26 @@
     <MudNavLink Icon="@Icons.Material.Filled.Dns" Href="/dnszones" Match="NavLinkMatch.Prefix">Dns</MudNavLink>
     <MudNavLink Icon="@Icons.Material.Filled.Logout" Href="/account/logout" Match="NavLinkMatch.Prefix">Logout</MudNavLink>
   </MudNavMenu>
+  <div class="pb-2 pl-3 mt-3">
+        @if(versionInfo != null)
+        {
+            <p><b>@versionInfo.Identity</b></p>
+            <p>@versionInfo.Name @versionInfo.Version</p>
+            <p>@frontendInfo.Name @frontendInfo.Version</p>
+        }
+  </div>
 </div>
+
+@code {
+    private ServerInfoPoco versionInfo;
+
+    private FrontendInfo frontendInfo = new FrontendInfo();
+
+    protected override async Task OnInitializedAsync()
+    {
+        versionInfo = (await _PNTMDApi.GetServerInfo());
+
+        await base.OnInitializedAsync();
+    }
+
+}
