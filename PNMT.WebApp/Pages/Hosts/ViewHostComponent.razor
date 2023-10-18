@@ -21,7 +21,7 @@
         </MudItem>
     </MudGrid>
     <MudGrid>
-        <MudItem lg="6" xs="12">
+        <MudItem lg="5" xs="12">
             <BigCardComp Title="Properties">
                 <div class="pb-4">
                     <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="DeleteHost">Delete</MudButton>
@@ -33,10 +33,6 @@
                         <tr>
                             <td>Enabled</td>
                             <td><EditableTextComponent Entity="@hostPoco" TItem="bool" InputType="checkbox" @bind-Value="@hostPoco.Enabled"></EditableTextComponent></td>
-                        </tr>
-                        <tr>
-                            <td>Id</td>
-                            <td>@hostPoco.Id</td>
                         </tr>
                         <tr>
                             <td>Name</td>
@@ -58,7 +54,7 @@
                 </table>
             </BigCardComp>
         </MudItem>
-        <MudItem lg="6" xs="12">
+        <MudItem lg="7" xs="12">
             <BigCardComp Title="Sensors">
                 <div class="pb-4">
                     <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Add" Color="Color.Secondary" Href="@($"/sensor/new/{hostPoco.Id}")">Create</MudButton>
