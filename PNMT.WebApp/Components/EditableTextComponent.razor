@@ -5,97 +5,97 @@
 
 @if (Editing)
 {
-  <MudGrid>
-    <MudItem xs="10">
-      @if (InputType == "checkbox")
-      {
-        <MudCheckBox @bind-Checked="Value"></MudCheckBox>
-      }
-      @if (InputType == "text")
-      {
-        <MudTextField @bind-Value="Value" Variant="Variant.Outlined" Margin="Margin.Dense" OnKeyDown="OnKeyDown" Immediate="true"></MudTextField>
-      }
-      @if (InputType == "select")
-      {
-        <SelectComponent @bind-Value="Value"></SelectComponent>
-      }
-    </MudItem>
-    <MudItem xs="2">
-      <a @onclick:preventDefault=true @onclick=ToggleEdit>
-        <MudIcon Icon="@Icons.Material.Filled.SaveAlt" Class="icon icon-base"></MudIcon>
-      </a>
-    </MudItem>
-  </MudGrid>
+    <div class="d-flex flex-grow-1 gap-4">
+        <div style="width: 80%">
+            @if (InputType == "checkbox")
+            {
+                <MudCheckBox @bind-Checked="Value"></MudCheckBox>
+            }
+            @if (InputType == "text")
+            {
+                <MudTextField @bind-Value="Value" Variant="Variant.Outlined" Margin="Margin.Dense" OnKeyDown="OnKeyDown" Immediate="true"></MudTextField>
+            }
+            @if (InputType == "select")
+            {
+                <SelectComponent @bind-Value="Value"></SelectComponent>
+            }
+        </div>
+        <div class="d-flex align-center justify-center">
+            <a @onclick:preventDefault=true @onclick=ToggleEdit>
+                <MudIcon Icon="@Icons.Material.Filled.SaveAlt" Class="icon icon-base"></MudIcon>
+            </a>
+        </div>
+    </div>
 }
 else
 {
-  @Value
-  <a @onclick:preventDefault=true @onclick=ToggleEdit>
-    <MudIcon Icon="@Icons.Material.Filled.Edit" Class="icon icon-base icon-editiable-text"></MudIcon>
-  </a>
+    @Value
+    <a @onclick:preventDefault=true @onclick=ToggleEdit>
+        <MudIcon Icon="@Icons.Material.Filled.Edit" Class="icon icon-base icon-editiable-text"></MudIcon>
+    </a>
 }
 
 @code {
-  public bool Editing { get; set; } = false;
+    public bool Editing { get; set; } = false;
 
-  [Parameter]
-  public string InputType { get; set; } = "text";
+    [Parameter]
+    public string InputType { get; set; } = "text";
 
-  private string CssClass
-  {
-    get
+    private string CssClass
     {
-      if (InputType == "checkbox") return "form-check-input";
-      if (InputType == "select") return "form-select";
-      return "form-control";
-    }
-  }
-
-  List<SelectListItem> Options = new List<SelectListItem>();
-
-  [Parameter]
-  public object Entity { get; set; }
-
-  [Parameter]
-  public TItem Value { get; set; }
-
-  [Parameter]
-  public EventCallback<TItem> ValueChanged { get; set; }
-
-  protected override async Task OnInitializedAsync()
-  {
-    if (typeof(TItem).IsEnum)
-    {
-      Enum.GetNames(typeof(TItem)).ToList().ForEach(x =>
-      {
-        Options.Add(new SelectListItem() { Text = x, Value = x });
-      });
+        get
+        {
+            if (InputType == "checkbox") return "form-check-input";
+            if (InputType == "select") return "form-select";
+            return "form-control";
+        }
     }
 
-    await base.OnInitializedAsync();
-  }
+    List<SelectListItem> Options = new List<SelectListItem>();
 
-  private async void OnKeyDown(KeyboardEventArgs args)
-  {
-    if (args.Key == "Enter")
+    [Parameter]
+    public object Entity { get; set; }
+
+    [Parameter]
+    public TItem Value { get; set; }
+
+    [Parameter]
+    public EventCallback<TItem> ValueChanged { get; set; }
+
+    protected override async Task OnInitializedAsync()
     {
-      ToggleEdit();
-    }
-  }
+        if (typeof(TItem).IsEnum)
+        {
+            Enum.GetNames(typeof(TItem)).ToList().ForEach(x =>
+            {
+                Options.Add(new SelectListItem() { Text = x, Value = x });
+            });
+        }
 
-  private async void ToggleEdit()
-  {
-    if (this.Editing)
+        await base.OnInitializedAsync();
+    }
+
+    private async void OnKeyDown(KeyboardEventArgs args)
     {
-      await ValueUpdated();
+        if (args.Key == "Enter")
+        {
+            ToggleEdit();
+        }
     }
 
-    this.Editing = !this.Editing;
-  }
+    private async void ToggleEdit()
+    {
+        if (this.Editing)
+        {
+            await ValueUpdated();
+        }
 
-  private async Task ValueUpdated()
-  {
-    await ValueChanged.InvokeAsync(Value);
-    if (Entity != null) Entity.Update();
-  }
+        this.Editing = !this.Editing;
+    }
+
+    private async Task ValueUpdated()
+    {
+        await ValueChanged.InvokeAsync(Value);
+        if (Entity != null) Entity.Update();
+    }
 }
