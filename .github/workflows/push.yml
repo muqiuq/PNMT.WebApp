@@ -1,0 +1,33 @@
+on: [push]
+name: Push to Azure Container Registry
+
+jobs:
+    build-and-deploy:
+        runs-on: ubuntu-latest
+        steps:
+        - uses: actions/checkout@v3
+          with:
+            repository: muqiuq/PNMT.WebApp
+            path: PNMT.WebApp
+        - uses: actions/checkout@v3
+          with:
+            repository: muqiuq/PNMTD
+            path: PNMTD
+            ssh-key : '${{ secrets.PRIVATE_SSH_KEY }}'
+
+        - name: 'Login via Azure CLI'
+          uses: azure/login@v1
+          with:
+            creds: ${{ secrets.AZURE_CREDENTIALS }}
+        - name: Copy Dockerfile to work dir
+          run: cp -vf PNMT.WebApp/PNMT.WebApp/Dockerfile .        
+        - name: 'Build and push image'
+          uses: azure/docker-login@v1
+          with:
+            login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
+            username: ${{ secrets.REGISTRY_USERNAME }}
+            password: ${{ secrets.REGISTRY_PASSWORD }}
+        - run: |
+            docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/muqiuq/pnmt.webapp:${{ github.sha }} -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/muqiuq/pnmt.webapp:latest
+            docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/muqiuq/pnmt.webapp:${{ github.sha }}
+            docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/muqiuq/pnmt.webapp:latest 
