@@ -1,8 +1,7 @@
-name: update demo.pnmt.portup.io
 on: []
+name: update demo.pnmt.portup.io
 
 jobs:
-
   build:
     name: Build
     runs-on: ubuntu-latest
