@@ -19,6 +19,7 @@ jobs:
       with:
         repository: muqiuq/PNMT.WebApp
         path: PNMT.WebApp
+        ssh-key : '${{ secrets.PRIVATE_SSH_KEY }}'
     - uses: actions/checkout@v3
       with:
         repository: muqiuq/PNMTD
