@@ -7,6 +7,9 @@
 @inject NavigationManager navigationManager
 @inject PNMTDApi _PNTMDApi
 
+<MudOverlay Visible="isLoading" DarkBackground="true" Absolute="true">
+    <MudProgressCircular Color="Color.Secondary" Indeterminate="true" />
+</MudOverlay>
 
 <MudContainer>
     <MudGrid>
@@ -62,10 +65,14 @@
 </MudContainer>
 
 @code {
+    bool isLoading = true;
+
     List<HostStatePoco> Hosts = new List<HostStatePoco>();
 
     protected override async Task OnInitializedAsync()
     {
         Hosts = (await _PNTMDApi.Hosts.GetAllHostsWithSensors());
+
+        isLoading = false;
     }
 }

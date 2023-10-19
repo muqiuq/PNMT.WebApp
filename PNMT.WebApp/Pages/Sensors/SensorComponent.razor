@@ -15,7 +15,7 @@
 
 
 
-<MudOverlay Visible="sensorPoco == null" DarkBackground="true" Absolute="true">
+<MudOverlay Visible="isLoading" DarkBackground="true" Absolute="true">
     <MudProgressCircular Color="Color.Secondary" Indeterminate="true" />
 </MudOverlay>
 
@@ -194,6 +194,8 @@
     [Parameter]
     public Guid Id { get; set; }
 
+    bool isLoading = true;
+
     public SensorPoco sensorPoco { get; set; }
 
     public List<NotificationRulePoco> notificationRulesForSensor = new List<NotificationRulePoco>();
@@ -216,6 +218,8 @@
         eventEntities = (await _PNTMDApi.Events.GetEventsForSensor(sensorPoco.Id)).OrderByDescending(e => e.Created).ToList();
 
         await Update();
+
+        isLoading = false;
 
         await base.OnInitializedAsync();
     }
