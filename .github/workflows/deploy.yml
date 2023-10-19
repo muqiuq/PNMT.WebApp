@@ -3,7 +3,7 @@ on:
     inputs:
       version:
         description: 'version to deploy (ingored)'  
-name: update demo.pnmt.portup.io
+name: deploy to demo.pnmt.portup.io from registry
 
 jobs:
   build:
