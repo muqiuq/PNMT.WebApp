@@ -28,6 +28,8 @@ jobs:
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: 7.0.x
+    - name: Apply appsettings for github actions
+      run: cp -vf PNMTD/PNMTD/appsettings.github-action.json PNMTD/PNMTD/appsettings.Development.json
     - name: Restore dependencies
       working-directory: PNMT.WebApp
       run: dotnet restore
