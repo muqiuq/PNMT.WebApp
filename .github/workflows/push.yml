@@ -19,7 +19,8 @@ jobs:
           uses: azure/login@v1
           with:
             creds: ${{ secrets.AZURE_CREDENTIALS }}
-        
+        - name: Copy Dockerfile to work dir
+          run: cp -vf PNMT.WebApp/PNMT.WebApp/Dockerfile .        
         - name: 'Build and push image'
           uses: azure/docker-login@v1
           with:
