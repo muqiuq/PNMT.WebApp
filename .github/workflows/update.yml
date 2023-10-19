@@ -17,6 +17,7 @@ jobs:
         username: ${{ secrets.SSH_USERNAME }}
         key: ${{ secrets.SSH_KEY }}
         script: |
+          sudo -i
           cd /opt/pnmt.webapp/
           docker-compose stop
           docker-compose rm -f
