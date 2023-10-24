@@ -2,6 +2,7 @@
 @attribute [Authorize]
 @using PNMT.ApiClient.Data;
 @using PNMT.WebApp.Components
+@using PNMT.WebApp.Helper;
 @using PNMT.WebApp.Models.Forms;
 @using PNMTD.Lib.Helper;
 @using PNMTD.Lib.Models.Poco;
@@ -9,6 +10,7 @@
 @inject NavigationManager navigationManager
 @inject PNMTDApi _PNTMDApi
 @inject IDialogService DialogService
+@inject ISnackbar Snackbar
 
 <MudOverlay Visible="isLoading" DarkBackground="true" Absolute="true">
     <MudProgressCircular Color="Color.Secondary" Indeterminate="true" />
@@ -35,6 +37,7 @@
                 <div class="pb-4 d-flex flex-grow-1 gap-4">
                     <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="DeleteDnsZone">Delete</MudButton>
                     <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Edit" Color="Color.Secondary" Href="@($"/dnszone/edit/{dnsZonePoco.Id}")">Edit</MudButton>
+                    <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Update" Color="Color.Info" OnClick="ForceUpdate">Force update</MudButton>
                 </div>
                 <table class="table table-bordered table-hover">
                     <thead>
@@ -51,6 +54,18 @@
                         <tr>
                             <td>Requires processing</td>
                             <td>@dnsZonePoco.RequiresProcessing</td>
+                        </tr>
+                        <tr>
+                            <td>Updated</td>
+                            <td>@dnsZonePoco.LastChecked</td>
+                        </tr>
+                        <tr>
+                            <td>Next check</td>
+                            <td>@dnsZonePoco.NextCheck</td>
+                        </tr>
+                        <tr>
+                            <td>Interval</td>
+                            <td><EditableTextComponent Entity="@dnsZonePoco" TItem="int" InputType="text" @bind-Value="@dnsZonePoco.Interval"></EditableTextComponent></td>
                         </tr>
                     </tbody>
                 </table>
@@ -164,6 +179,12 @@
         await base.OnInitializedAsync();
     }
 
+    protected void ForceUpdate()
+    {
+        dnsZonePoco.ForceUpdate = true;
+        dnsZonePoco.Update();
+        Snackbar.Add("Force update flag set. Please one minute and refresh page.");
+    }
 
     private void SetIsLoading()
     {

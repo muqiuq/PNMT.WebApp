@@ -62,6 +62,18 @@
             <MudDataGridPager T="DnsZonePoco" />
         </PagerContent>
     </MudDataGrid>
+    <BigCardComp Title="History">
+        @if (logEntries != null)
+        {
+            <div class="pb-2"><MudPagination Color="Color.Primary" Count="@(logEntries.Count / 10)" @bind-Selected="@_selected_log_page" /></div>
+            @foreach (var logEntry in logEntries.Skip(10 * _selected_log_page).Take(10))
+            {
+                <div class="pt-1">
+                    <p><a href="/dnszone/@logEntry.DnsZoneId"><b>[@logEntry.Created]</b></a> @logEntry.Message</p>
+                </div>
+            }
+        }
+    </BigCardComp>
 </MudContainer>
 
 @code {
@@ -69,9 +81,15 @@
 
     List<DnsZonePoco> DnsZones = new List<DnsZonePoco>();
 
+    public List<DnsZoneLogEntryPoco> logEntries;
+
+    private int _selected_log_page = 1;
+
     protected override async Task OnInitializedAsync()
     {
         DnsZones = (await _PNTMDApi.DnsZones.GetAll());
+
+        logEntries = (await _PNTMDApi.DnsZones.GetLogs());
 
         isLoading = false;
     }
