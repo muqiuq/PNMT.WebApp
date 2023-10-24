@@ -73,8 +73,8 @@
             <BigCardComp Title="History">
                 @if(logEntries != null) 
                 {
-                    <div class="pb-2"><MudPagination Color="Color.Primary" Count="@(logEntries.Count / 10)" @bind-Selected="@_selected_log_page"/></div>
-                    @foreach(var logEntry in logEntries.Skip(10 * _selected_log_page).Take(10)) 
+                     <div class="pb-2"><MudPagination Color="Color.Primary" Count="@(logEntries.Count / 10)" @bind-Selected="@_selectedLogPage"/></div>
+                    @foreach(var logEntry in logEntries.Skip(10 * _selectedLogPage).Take(10)) 
                     {
                         <p><b>@logEntry.Created</b> @logEntry.Message</p>
                     }
@@ -161,11 +161,11 @@
 
     private bool isLoading { get; set; } = true;
 
-    public DnsZonePoco dnsZonePoco = new DnsZonePoco();
+    private DnsZonePoco dnsZonePoco = new DnsZonePoco();
 
-    public List<DnsZoneLogEntryPoco> logEntries;
+    private List<DnsZoneLogEntryPoco> logEntries = new List<DnsZoneLogEntryPoco>();
 
-    private int _selected_log_page = 1;
+    private int _selectedLogPage = 1;
 
     protected override async Task OnInitializedAsync()
     {
@@ -183,7 +183,7 @@
     {
         dnsZonePoco.ForceUpdate = true;
         dnsZonePoco.Update();
-        Snackbar.Add("Force update flag set. Please one minute and refresh page.");
+        Snackbar.Add("Force update flag set. Please wait one minute and refresh page.");
     }
 
     private void SetIsLoading()
