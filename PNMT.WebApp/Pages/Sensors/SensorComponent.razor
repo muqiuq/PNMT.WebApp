@@ -92,14 +92,14 @@
                 <BigCardComp Title="Sensor URL">
                     <table class="table table-bordered table-hover">
                         <tbody>
-                            <tr>
-                                <td>BaseUrl:</td>
-                                <td>@_PNTMDApi.GetSensorEventUrl(sensorPoco)</td>
-                            </tr>
-                            <tr>
-                                <td>Example:</td>
-                                <td>@(_PNTMDApi.GetSensorEventUrl(sensorPoco, "200", "Hello"))</td>
-                            </tr>
+                        <tr>
+                            <td>Write (example):</td>
+                            <td>@(_PNTMDApi.GetSensorEventUrl(sensorPoco, "200", "Hello"))</td>
+                        </tr>
+                        <tr>
+                            <td>Read (example):</td>
+                            <td>@(_PNTMDApi.GetSensorReadUrl(sensorPoco))</td>
+                        </tr>
                         </tbody>
                     </table>
                 </BigCardComp>
