@@ -6,6 +6,7 @@
 @using PNMT.WebApp.Models.Forms;
 @using PNMT.WebApp.Pages.Hosts;
 @using PNMTD.Lib.Helper;
+@using PNMTD.Lib.Models.Enum
 @using PNMTD.Lib.Models.Poco;
 @using PNMTD.Models.Poco;
 @inject NavigationManager navigationManager
@@ -17,69 +18,76 @@
 
 @if (sensorForm != null)
 {
-  <MudContainer>
-    <MudGrid>
-      <MudItem xs="12">
-        <MudPaper Class="pa-3 ma-2 mt-4">
-          <h1>New Sensor for @hostPoco.Name</h1>
-        </MudPaper>
-      </MudItem>
-    </MudGrid>
+    <MudContainer>
+        <MudGrid>
+            <MudItem xs="12">
+                <MudPaper Class="pa-3 ma-2 mt-4">
+                    <h1>New Sensor for @hostPoco?.Name</h1>
+                </MudPaper>
+            </MudItem>
+        </MudGrid>
 
-    <EditForm Model="@sensorForm" OnValidSubmit="@HandleValidSubmit" OnInvalidSubmit="InvalidSubmit">
-      <DataAnnotationsValidator />
-      @if (!ValidForm)
-      {
-        <MudAlert Severity="Severity.Error" Dense="true" Class="my-2"><ValidationSummary/></MudAlert>
-      }
-      <MudStack>
-        <MudCheckBox @bind-Checked="@sensorForm.Enabled" Label="Enabled"></MudCheckBox>
-        <MudTextField @bind-Value="sensorForm.Name" Label="Name" Variant="Variant.Outlined"></MudTextField>
-        <MudTextField @bind-Value="sensorForm.TextId" Label="TextId" Variant="Variant.Outlined"></MudTextField>
-        <SelectComponent Label="Type" @bind-Value="sensorForm.Type"></SelectComponent>
-        <MudNumericField @bind-Value="sensorForm.Interval" Label="Internval (s)" Variant="Variant.Outlined"></MudNumericField>
-        <MudNumericField @bind-Value="sensorForm.GracePeriod" Label="GracePeriod (s)" Variant="Variant.Outlined"></MudNumericField>
-        <MudButton Variant="Variant.Filled" Color="Color.Primary" ButtonType="ButtonType.Submit">@("Create")</MudButton>
-      </MudStack>
-    </EditForm>
-  </MudContainer>
+        <EditForm EditContext="editContext" OnValidSubmit="@HandleValidSubmit" OnInvalidSubmit="InvalidSubmit">
+            <DataAnnotationsValidator />
+            @if (!ValidForm)
+            {
+                <MudAlert Severity="Severity.Error" Dense="true" Class="my-2"><ValidationSummary/></MudAlert>
+            }
+            <MudStack>
+                <MudCheckBox @bind-Checked="@sensorForm.Enabled" Label="Enabled"></MudCheckBox>
+                <MudTextField @bind-Value="sensorForm.Name" Label="Name" Variant="Variant.Outlined"></MudTextField>
+                <MudTextField @bind-Value="sensorForm.TextId" Label="TextId" Variant="Variant.Outlined"></MudTextField>
+                <SelectComponent Label="Type" @bind-Value="sensorForm.Type" @bind-Value:after="SensorTypeChanged"></SelectComponent>
+                <MudNumericField @bind-Value="sensorForm.Interval" Label="Internval (s)" Variant="Variant.Outlined"></MudNumericField>
+                <MudNumericField @bind-Value="sensorForm.GracePeriod" Label="GracePeriod (s)" Variant="Variant.Outlined"></MudNumericField>
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" ButtonType="ButtonType.Submit">@("Create")</MudButton>
+            </MudStack>
+        </EditForm>
+    </MudContainer>
 }
 
 
 @code {
-  [Parameter]
-  public Guid Id { get; set; }
+    [Parameter]
+    public Guid Id { get; set; }
 
-  private HostPoco hostPoco;
+    private EditContext? editContext;
+    private ValidationMessageStore? messageStore;
 
-  public SensorPoco sensorPoco;
+    private HostPoco hostPoco;
 
-  private bool isLoading = true;
+    public SensorPoco sensorPoco;
 
-  public SensorForm sensorForm;
+    private bool isLoading = true;
 
-  public string Title = "New Sensor";
+    public SensorForm sensorForm;
 
-  public bool ValidForm = true;
+    public string Title = "New Sensor";
 
-  protected override async Task OnInitializedAsync()
-  {
-    hostPoco = (await _PNTMDApi.Hosts.Get(Id));
+    public bool ValidForm = true;
 
-    sensorForm = new SensorForm()
+    protected override async Task OnInitializedAsync()
     {
-    Interval = 60,
-    GracePeriod = 60
-    };
+        sensorForm = new SensorForm()
+        {
+            Interval = 60,
+            GracePeriod = 60
+        };
 
-    await base.OnInitializedAsync();
+        editContext = new EditContext(sensorForm);
 
-    isLoading = false;
-  }
+        messageStore = new(editContext);
 
-  private async void HandleValidSubmit()
-  {
-    ValidForm = true;
+        hostPoco = (await _PNTMDApi.Hosts.Get(Id));
+
+        await base.OnInitializedAsync();
+
+        isLoading = false;
+    }
+
+    private async void HandleValidSubmit()
+    {
+        ValidForm = true;
     isLoading = true;
     var sensorPoco = sensorForm.MapPropertiesTo<SensorForm, SensorPoco>();
     sensorPoco.ParentId = hostPoco.Id;
@@ -91,4 +99,20 @@
   {
     ValidForm = false;
   }
+
+  private void SensorTypeChanged()
+  {
+      if (!sensorForm.Type.IsEditable())
+      {
+          ValidForm = false;
+          messageStore.Add(() => sensorForm.Type, "Sensor type not editable");
+          return;
+      }
+      else
+      {
+          messageStore.Clear();
+          ValidForm = true;
+      }
+  }
+
 }

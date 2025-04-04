@@ -52,22 +52,42 @@
                                 <td>Created</td>
                                 <td>@sensorPoco.Created</td>
                             </tr>
-                            <tr>
-                                <td>Name</td>
+                        <tr>
+                            <td>Name</td>
+                                @if (sensorPoco.Type.IsEditable())
+                            {
                                 <td><b><EditableTextComponent Entity="@sensorPoco" TItem="string" @bind-Value="@sensorPoco.Name"></EditableTextComponent></b></td>
-                            </tr>
-                            <tr>
-                                <td>TextId</td>
-                                <td><b><EditableTextComponent Entity="@sensorPoco" TItem="string" @bind-Value="@sensorPoco.TextId"></EditableTextComponent></b></td>
-                            </tr>
-                            <tr>
-                                <td>Type</td>
+                            }
+                                else
+                                {
+                                    <td><b>@sensorPoco.Name</b></td>
+                                }
+                            
+                        </tr>
+                        @if (!sensorPoco.Type.HideTextId())
+                        {
+                                <tr>
+                                    <td>TextId</td>
+                                    <td><b><EditableTextComponent Entity="@sensorPoco" TItem="string" @bind-Value="@sensorPoco.TextId"></EditableTextComponent></b></td>
+                                </tr>
+                        }
+                        <tr>
+                            <td>Type</td>
+                            @if (sensorPoco.Type.IsEditable())
+                            {
                                 <td><b><EditableTextComponent InputType="select" Entity="@sensorPoco" TItem="SensorType" @bind-Value="@sensorPoco.Type"></EditableTextComponent></b></td>
-                            </tr>
-                            <tr>
-                                <td>Source</td>
-                                <td><EditableTextComponent Entity="@sensorPoco" TItem="string" @bind-Value="@sensorPoco.Source"></EditableTextComponent></td>
-                            </tr>
+                            }
+                            else
+                            {
+                                <td>@sensorPoco.Type.ToString()</td>
+                            }
+                        </tr>
+                        <tr>
+                            <td>Source</td>
+                            <td><EditableTextComponent Entity="@sensorPoco" TItem="string" @bind-Value="@sensorPoco.Source"></EditableTextComponent></td>
+                        </tr>
+                        @if (sensorPoco.Type.UsesIntervalAndGracePeriod())
+                        {
                             <tr>
                                 <td>Grace period</td>
                                 <td><EditableTextComponent Entity="@sensorPoco" TItem="int" @bind-Value="@sensorPoco.GracePeriod"></EditableTextComponent></td>
@@ -76,10 +96,22 @@
                                 <td>Interval</td>
                                 <td><EditableTextComponent Entity="@sensorPoco" TItem="int" @bind-Value="@sensorPoco.Interval"></EditableTextComponent></td>
                             </tr>
-                            <tr>
-                                <td>Parameters</td>
-                                <td><EditableTextComponent Entity="@sensorPoco" TItem="string" @bind-Value="@sensorPoco.Parameters"></EditableTextComponent></td>
-                            </tr>
+                        }
+
+                            @if (!sensorPoco.Type.HideParameters())
+                            {
+                                <tr>
+                                    <td>Parameters</td>
+                                    <td><EditableTextComponent Entity="@sensorPoco" TItem="string" @bind-Value="@sensorPoco.Parameters"></EditableTextComponent></td>
+                                </tr>
+                            }
+                            @if (sensorPoco.Type == SensorType.DNS)
+                            {
+                                <tr>
+                                    <td>Linked to</td>
+                                    <td><MudLink Href="@($"/dnszone/{sensorPoco.TextId}")">@sensorPoco.Name</MudLink></td>
+                                </tr>
+                            }
                             <tr>
                                 <td>Status</td>
                                 <td>@sensorPoco.Status</td>
