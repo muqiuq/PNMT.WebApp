@@ -7,6 +7,7 @@
 @using PNMTD.Lib.Helper;
 @using PNMTD.Lib.Models.Poco;
 @using System.Text.Json;
+@using Microsoft.AspNetCore.Mvc.Rendering
 @inject NavigationManager navigationManager
 @inject PNMTDApi _PNTMDApi
 @inject IDialogService DialogService
@@ -19,18 +20,18 @@
 
 @if (dnsZonePoco != null)
 {
-<MudContainer>
-    <MudGrid>
-        <MudItem xs="12">
-            <MudGrid>
-                <MudItem xs="12">
-                    <MudPaper Class="pa-3 ma-2 mt-4"><h1>Edit zone file - <b>@dnsZonePoco.ZoneName</b></h1></MudPaper>
-                </MudItem>
-            </MudGrid>
-        </MudItem>
-    </MudGrid>
-    <MudGrid>
-        <MudItem lg="12" xs="12">
+    <MudContainer>
+        <MudGrid>
+            <MudItem xs="12">
+                <MudGrid>
+                    <MudItem xs="12">
+                        <MudPaper Class="pa-3 ma-2 mt-4"><h1>Edit zone file - <b>@dnsZonePoco.ZoneName</b></h1></MudPaper>
+                    </MudItem>
+                </MudGrid>
+            </MudItem>
+        </MudGrid>
+        <MudGrid>
+            <MudItem lg="12" xs="12">
                 <MudPaper Class="pa-3 ma-2 mt-4">
                     <div class="pb-4 d-flex flex-grow-1 gap-4">
                         <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Save" Color="Color.Success" OnClick="Save">
@@ -48,24 +49,37 @@
                             <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Close" Color="Color.Secondary" Href="@($"/dnszone/{dnsZonePoco.Id}")">Close</MudButton>
                         }
                     </div>
-            </MudPaper>
-        </MudItem>
-    </MudGrid>
-    <MudGrid>
-        <MudItem lg="12" xs="12">
-            <MudPaper Class="pa-3 ma-2 mt-4">
-                <div class="growing-code-textarea">
-                    <textarea @oninput="UpdateValue" @ref="zoneTextField" @bind="dnsZonePoco.ZoneFileContent" />
-                </div>
-            </MudPaper>
-        </MudItem>
-    </MudGrid>
-</MudContainer>
-<script>
-function updateParentNodeDataset(textareaElement, value) {
-    textareaElement.parentNode.dataset.replicatedValue = value;
-}
-</script>
+                </MudPaper>
+            </MudItem>
+        </MudGrid>
+        <MudGrid>
+            <MudItem lg="12" xs="12">
+                <MudPaper Class="pa-3 ma-2 mt-4">
+                    <MudSelect Label="Host" T="HostPoco" ToStringFunc="@hostPocoConverter" @bind-Value="dnsZonePoco.Host" @bind-Value:after="ValueUpdated" Margin="Margin.Dense">
+                        <MudSelectItem T="HostPoco" Value="@null">-</MudSelectItem>
+                        @foreach (var item in hosts)
+                        {
+                            <MudSelectItem T="HostPoco" Value="@item"></MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudPaper>
+            </MudItem>
+        </MudGrid>
+        <MudGrid>
+            <MudItem lg="12" xs="12">
+                <MudPaper Class="pa-3 ma-2 mt-4">
+                    <div class="growing-code-textarea">
+                        <textarea @oninput="UpdateValue" @ref="zoneTextField" @bind="dnsZonePoco.ZoneFileContent" />
+                    </div>
+                </MudPaper>
+            </MudItem>
+        </MudGrid>
+    </MudContainer>
+    <script>
+        function updateParentNodeDataset(textareaElement, value) {
+        textareaElement.parentNode.dataset.replicatedValue = value;
+        }
+    </script>
 }
 
 @code {
@@ -80,6 +94,10 @@ function updateParentNodeDataset(textareaElement, value) {
 
     private ElementReference zoneTextField;
 
+    private List<HostPoco> hosts = new List<HostPoco>();
+
+    Func<HostPoco, string> hostPocoConverter = p => p?.Name;
+
     protected override async Task OnInitializedAsync()
     {
         if (Id == null) {
@@ -89,6 +107,8 @@ function updateParentNodeDataset(textareaElement, value) {
             dnsZonePoco = (await _PNTMDApi.DnsZones.Get(Id.Value));
             originalValue = dnsZonePoco.ZoneFileContent;
         }
+
+        hosts = (await _PNTMDApi.Hosts.GetAll());
 
         await base.OnInitializedAsync();
     }
@@ -132,6 +152,12 @@ function updateParentNodeDataset(textareaElement, value) {
             Snackbar.Add("Saved");
         }
 
-        
+
     }
+
+    private async Task ValueUpdated()
+    {
+        dnsZonePoco.HostId = dnsZonePoco.Host?.Id;
+    }
+
 }

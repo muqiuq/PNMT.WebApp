@@ -67,13 +67,17 @@
                             <td>Interval</td>
                             <td><EditableTextComponent Entity="@dnsZonePoco" TItem="int" InputType="text" @bind-Value="@dnsZonePoco.Interval"></EditableTextComponent></td>
                         </tr>
+                        <tr>
+                            <td>Host</td>
+                            <td>@dnsZonePoco.Host?.Name</td>
+                        </tr>
                     </tbody>
                 </table>
             </BigCardComp>
             <BigCardComp Title="History">
                 @if(logEntries != null) 
                 {
-                     <div class="pb-2"><MudPagination Color="Color.Primary" Count="@(logEntries.Count / 10)" @bind-Selected="@_selectedLogPage"/></div>
+                    <div class="pb-2"><MudPagination Color="Color.Primary" Count="@(logEntries.Count / 10)" @bind-Selected="@_selectedLogPage"/></div>
                     @foreach(var logEntry in logEntries.Skip(10 * _selectedLogPage).Take(10)) 
                     {
                         <p><b>@logEntry.Created</b> @logEntry.Message</p>
@@ -172,7 +176,6 @@
         dnsZonePoco = (await _PNTMDApi.DnsZones.Get(Id));
 
         logEntries = (await _PNTMDApi.DnsZones.GetLogs(Id));
-
 
         isLoading = false;
 
