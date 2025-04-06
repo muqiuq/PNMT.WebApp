@@ -68,10 +68,11 @@ namespace PNMT.WebApp
                 if (!string.IsNullOrEmpty(builder.Configuration["JwtToken"]))
                 {
                     File.WriteAllText(tokenFilePath, builder.Configuration["JwtToken"]);
+                    _logger.LogInformation($"Wrote JwtToken in configuration to file {tokenFilePath}");
                 }
                 else
                 {
-                    _logger.LogInformation("No token to access PNMTD (backend) available. Waiting 10s");
+                    _logger.LogInformation("No JwtToken to access PNMTD (backend) available. Waiting 10s");
                     Thread.Sleep(TimeSpan.FromSeconds(10));
                     _logger.LogInformation("Trying to acquire token...");
                     var httpClient = new HttpClient();
