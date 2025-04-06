@@ -56,7 +56,11 @@ namespace PNMT.WebApp.Authentification
             }
             else
             {
-                Users = new List<WebAppUser>();
+                Users = new List<WebAppUser>()
+                {
+                    WebAppUser.New("default user", "pnmt", "pnmt", true)
+                };
+                Save();
             }
         }
 

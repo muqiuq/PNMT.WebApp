@@ -1,3 +1,4 @@
+using System.Net;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
@@ -7,6 +8,7 @@ using PNMT.ApiClient.Data;
 using PNMT.WebApp.Authentification;
 using PNMTD.Helper;
 using PNMTD.Lib.Authentification;
+using System.Net.Http;
 using System.Runtime.InteropServices;
 
 namespace PNMT.WebApp
@@ -30,7 +32,12 @@ namespace PNMT.WebApp
                 builder.Configuration.AddJsonFile(Path.Combine(GlobalConfiguration.LinuxBasePath, "config.json"), true, true);
             }
 
-            var requiredConfigurations = new string[] { "JwtToken", "apiurl" };
+            if (!Global.IsDevelopment)
+            {
+                builder.Configuration.AddEnvironmentVariables();
+            }
+
+            var requiredConfigurations = new string[] { "apiurl" };
 
             foreach(var rc in requiredConfigurations)
             {
@@ -39,17 +46,6 @@ namespace PNMT.WebApp
                     _logger.LogError($"Missing {rc}");
                     if(!Global.IsDevelopment) return;
                 }
-            }
-
-            if (Global.IsDevelopment)
-            {
-                builder.Services.AddSingleton<JwtTokenProvider>(new JwtTokenProvider(Global.IsDevelopment));
-            }
-            else
-            {
-                var tokenProvider = new JwtTokenProvider(Global.IsDevelopment);
-                tokenProvider.JwtToken = builder.Configuration["JwtToken"];
-                builder.Services.AddSingleton<JwtTokenProvider>(tokenProvider);
             }
 
             if (!Global.IsDevelopment)
@@ -61,7 +57,43 @@ namespace PNMT.WebApp
                 }
             }
 
-            if(builder.Configuration["externalApiurl"] != null)
+            var tokenFilePath = "token.txt";
+            if (!Global.IsDevelopment && RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                tokenFilePath = Path.Combine(GlobalConfiguration.LinuxBasePath, tokenFilePath);
+            }
+
+            if (!File.Exists(tokenFilePath))
+            {
+                if (!string.IsNullOrEmpty(builder.Configuration["JwtToken"]))
+                {
+                    File.WriteAllText(tokenFilePath, builder.Configuration["JwtToken"]);
+                }
+                else
+                {
+                    _logger.LogInformation("No token to access PNMTD (backend) available. Waiting 10s");
+                    Thread.Sleep(TimeSpan.FromSeconds(10));
+                    _logger.LogInformation("Trying to acquire token...");
+                    var httpClient = new HttpClient();
+                    httpClient.BaseAddress = new Uri($"{PNMTDApi.BaseAddress}");
+                    var getTokenTask = httpClient.GetAsync("/trust/create-web-app-token");
+                    getTokenTask.Wait();
+                    if (getTokenTask.Result.StatusCode != HttpStatusCode.OK)
+                    {
+                        _logger.LogError($"Could not acquire token from backend. Supply JwtToken manually or make sure backend is running. Error Code: {getTokenTask.Result.StatusCode}");
+                        throw new ArgumentException($"Could not acquire token from backend. Supply JwtToken manually or make sure backend is running. Error Code: {getTokenTask.Result.StatusCode}");
+                    }
+
+                    var tokenStringTask = ((HttpResponseMessage)getTokenTask.Result).Content.ReadAsStringAsync();
+                    tokenStringTask.Wait();
+                    _logger.LogInformation($"Saved Token to file {tokenFilePath}");
+                    File.WriteAllText(tokenFilePath, tokenStringTask.Result);
+                }
+            }
+            builder.Services.AddSingleton<JwtTokenProvider>(new JwtTokenProvider(File.ReadAllText(tokenFilePath)));
+
+
+            if(!string.IsNullOrEmpty(builder.Configuration["externalApiurl"]))
             {
                 PNMTDApi.BaseUrlForEventSubmission = builder.Configuration["externalApiurl"];
                 if(PNMTDApi.BaseUrlForEventSubmission.EndsWith("/"))
@@ -82,7 +114,7 @@ namespace PNMT.WebApp
                 {
                     options.LoginPath = "/login";
                     options.LogoutPath = "/logout";
-                    if(builder.Configuration["externalDomain"] != null)
+                    if(!string.IsNullOrEmpty(builder.Configuration["externalDomain"]))
                     {
                         options.Cookie.Domain = builder.Configuration["externalDomain"];
                         options.Cookie.Name = builder.Configuration["externalDomain"];
