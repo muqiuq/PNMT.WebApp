@@ -42,12 +42,12 @@
             </TemplateColumn>
             <PropertyColumn Property="h => h.StatusCode" />
             <PropertyColumn Property="h => h.Created" />
-            <TemplateColumn Title="Name" SortBy="@(x => x.HostName)">
+            <TemplateColumn Title="Host" SortBy="@(x => x.HostName)">
                 <CellTemplate>
                     <a href="/host/@context.Item.HostId">@context.Item.HostName</a>
                 </CellTemplate>
             </TemplateColumn>
-            <TemplateColumn Title="Name" SortBy="@(x => x.SensorName)">
+            <TemplateColumn Title="Sensor" SortBy="@(x => x.SensorName)">
                 <CellTemplate>
                     <a href="/sensor/@context.Item.SensorId">@context.Item.SensorName</a>
                 </CellTemplate>
