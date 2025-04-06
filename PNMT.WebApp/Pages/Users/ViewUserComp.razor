@@ -1,0 +1,142 @@
+﻿@page "/user/{Id:guid}"
+@attribute [Authorize]
+@using System.ComponentModel.DataAnnotations
+@using PNMT.ApiClient.Data;
+@using PNMT.WebApp.Authentification
+@using PNMT.WebApp.Components
+@using PNMT.WebApp.Models.Forms;
+@using PNMT.WebApp.Pages.Hosts;
+@using PNMTD.Lib.Helper;
+@using PNMTD.Lib.Models.Enum
+@using PNMTD.Lib.Models.Poco;
+@using PNMTD.Models.Poco;
+@inject NavigationManager navigationManager
+@inject WebAppUserManager _WebAppUserManager
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+
+
+
+<MudContainer>
+    <MudGrid>
+        <MudItem xs="12">
+            <MudPaper Class="pa-3 ma-2 mt-4">
+                <h1>User - <b>@user.Name</b></h1>
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+    <MudGrid>
+        <MudItem lg="5" xs="12">
+            <BigCardComp Title="Properties">
+                <div class="pb-4">
+                    <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="DeleteUser">Delete</MudButton>
+                </div>
+                <table class="table table-bordered table-hover">
+                    <thead>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Name</td>
+                            <td><SimpleEditableTextComponent TItem="string" InputType="text" @bind-Value="user.Name" @bind-Value:after="UserUpdated" Entity="user"></SimpleEditableTextComponent> </td>
+                        </tr>
+                    <tr>
+                        <td>Username</td>
+                        <td>@user.Username</td>
+                    </tr>
+                    <tr>
+                        <td>IsAdmin</td>
+                        <td><td><SimpleEditableTextComponent TItem="bool" InputType="checkbox" @bind-Value="user.IsAdmin" @bind-Value:after="UserUpdated" Entity="user"></SimpleEditableTextComponent> </td></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </BigCardComp>
+        </MudItem>
+        <MudItem lg="7" xs="12">
+            <BigCardComp Title="Change Password">
+                <EditForm EditContext="editContext" OnValidSubmit="@HandleValidSubmit" OnInvalidSubmit="InvalidSubmit">
+                <DataAnnotationsValidator />
+                @if (!ValidForm)
+                    {
+                        <MudAlert Severity="Severity.Error" Dense="true" Class="my-2"><ValidationSummary/></MudAlert>
+                    }
+                    <MudStack>
+                        <MudTextField @bind-Value="passwordForm.NewPassword" Label="New Password" InputType="InputType.Password" @onkeydown="ResetValidation"></MudTextField>
+                        <MudTextField @bind-Value="passwordForm.RepeatNewPassword" Label="Repeat New Password" InputType="InputType.Password" @onkeydown="ResetValidation"></MudTextField>
+                        <MudButton ButtonType="ButtonType.Submit" StartIcon="@Icons.Material.Filled.Save" Color="Color.Primary">Save</MudButton>
+                    </MudStack>
+                </EditForm>
+            </BigCardComp>
+        </MudItem>
+    </MudGrid>
+</MudContainer>
+
+
+@code {
+    [Parameter]
+    public Guid Id { get; set; }
+
+    private WebAppUser user;
+
+    private ChangePasswordForm passwordForm = new() ;
+    private EditContext editContext;
+    private ValidationMessageStore messageStore;
+
+    bool ValidForm = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        editContext = new EditContext(passwordForm);
+
+        messageStore = new ValidationMessageStore(editContext);
+
+        user = _WebAppUserManager.GetUserById(Id);
+    }
+
+
+    private async Task DeleteUser(MouseEventArgs arg)
+    {
+        if (_WebAppUserManager.NumberOfAdmins() == 1)
+        {
+            Snackbar.Add("Cannot delete last admin.", Severity.Error);
+            return;
+        }
+
+        DialogHelper.ShowDeleteDialog(DialogService, async () =>
+        {
+            _WebAppUserManager.Delete(Id);
+            _WebAppUserManager.Save();
+            Snackbar.Add("User deleted.", Severity.Success);
+            navigationManager.NavigateTo($"/users");
+        });
+        
+    }
+
+    private void UserUpdated()
+    {
+        _WebAppUserManager.Save();
+    }
+
+    private void HandleValidSubmit()
+    {
+        messageStore.Clear();
+        ValidForm = true;
+        user.SetPassword(passwordForm.NewPassword);
+        _WebAppUserManager.Save();
+        passwordForm = new();
+        Snackbar.Add("Password saved!", Severity.Success);
+
+    }
+
+    private void InvalidSubmit()
+    {
+        ValidForm = false;
+    }
+
+    private void ResetValidation()
+    {
+        messageStore.Clear();
+        ValidForm = true;
+        editContext.NotifyValidationStateChanged();
+    }
+
+}

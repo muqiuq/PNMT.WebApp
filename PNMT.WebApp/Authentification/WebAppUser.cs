@@ -5,13 +5,31 @@ namespace PNMT.WebApp.Authentification
 {
   public class WebAppUser
   {
+    public Guid Id { get; set; } = Guid.Empty;
 
     public string Username { get; set; }
+
+    public string Name { get; set; }
+
+    public bool IsAdmin { get; set; }
 
     public string PasswordHash { get; set; }
 
     public string Salt { get; set; }
 
+
+    public static WebAppUser New(string name, string username, string password, bool isAdmin)
+    {
+        var wu = new WebAppUser()
+        {
+            Id = Guid.NewGuid(),
+            Username = username,
+            Name = name,
+            IsAdmin = isAdmin
+        };
+        wu.SetPassword(password);
+        return wu;
+    }
 
     public void SetPassword(string password)
     {

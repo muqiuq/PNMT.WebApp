@@ -10,6 +10,18 @@ namespace PNMT.WebApp.Authentification
 
         public List<WebAppUser>? Users { get; private set; }
 
+        public int Count()
+        {
+            if (Users == null) return 0;
+            return Users!.Count;
+        }
+
+        public int NumberOfAdmins()
+        {
+            if (Users == null) return 0;
+            return Users.Count(u => u.IsAdmin);
+        }
+
         public WebAppUserManager()
         {
             var path = "";
@@ -29,6 +41,18 @@ namespace PNMT.WebApp.Authentification
             if(File.Exists(usersDbPath))
             {
                 Users = JsonSerializer.Deserialize<List<WebAppUser>>(File.ReadAllText(usersDbPath));
+                
+                // Migration Logic
+                if (Users.Count == 1
+                    && string.IsNullOrEmpty(Users[0].Name)
+                    && Users[0].Id == Guid.Empty)
+                {
+                    var user = Users[0];
+                    user.IsAdmin = true;
+                    user.Id = Guid.NewGuid();
+                    user.Name = user.Username;
+                    Save();
+                }
             }
             else
             {
@@ -60,6 +84,16 @@ namespace PNMT.WebApp.Authentification
         public void Save()
         {
             File.WriteAllText(usersDbPath, JsonSerializer.Serialize(Users));
+        }
+
+        public WebAppUser GetUserById(Guid id)
+        {
+            return Users.Single(u => u.Id == id);
+        }
+
+        public bool Delete(Guid id)
+        {
+            return Users.Remove(GetUserById(id));
         }
     }
 }

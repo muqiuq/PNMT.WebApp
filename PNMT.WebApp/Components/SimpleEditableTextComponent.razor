@@ -60,15 +60,6 @@ else
     public TItem Value { get; set; }
 
     [Parameter]
-    public List<object>? PossibleValues { get; set; }
-
-    [Parameter] 
-    public string ShowTextKey { get; set; } = "Name";
-
-    [Parameter]
-    public bool AllowNull { get; set; } = false;
-
-    [Parameter]
     public EventCallback<TItem> ValueChanged { get; set; }
 
 
@@ -102,35 +93,12 @@ else
         {
             await ValueUpdated();
         }
-        else
-        {
-            await PossibleValuesUpdated();
-        }
 
         this.Editing = !this.Editing;
-    }
-
-    private async Task PossibleValuesUpdated()
-    {
-        if (PossibleValues != null)
-        {
-            Options.Clear();
-            foreach (var pv in PossibleValues)
-            {
-                var nameProp = pv.GetType().GetProperties().Single(p => p.Name == "Name");
-                var idProp = pv.GetType().GetProperties().Single(p => p.Name == "Id");
-                Options.Add(new SelectListItem() { Text = nameProp.GetValue(pv)?.ToString(), Value = idProp.GetValue(pv)?.ToString() });
-            }
-            if (AllowNull)
-            {
-                Options.Add(new SelectListItem() { Text = "-", Value = null });
-            }
-        }
     }
 
     private async Task ValueUpdated()
     {
         await ValueChanged.InvokeAsync(Value);
-        if (Entity != null) Entity.Update();
     }
 }

@@ -1,0 +1,75 @@
+﻿@page "/users"
+@attribute [Authorize]
+@using PNMT.ApiClient.Data;
+@using PNMT.WebApp.Authentification
+@using PNMT.WebApp.Models.Forms;
+@using PNMTD.Lib.Helper;
+@using PNMTD.Lib.Models.Poco;
+@inject NavigationManager navigationManager
+@inject WebAppUserManager _WebAppUserManager
+
+<MudOverlay Visible="isLoading" DarkBackground="true" Absolute="true">
+    <MudProgressCircular Color="Color.Secondary" Indeterminate="true" />
+</MudOverlay>
+
+<MudContainer>
+    <MudGrid>
+        <MudItem xs="12">
+            <MudPaper Class="pa-3 mb-1 mt-4">
+                <div class="d-flex">
+                    <div class="d-inline"><h1><MudIcon Icon="@Icons.Material.Filled.Event" Class="icon-base-more-space"></MudIcon></h1></div>
+                    <div class="d-inline">
+                        <h1>
+                            Users
+                        </h1>
+                    </div>
+                </div>
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+    <div class="pa-3 mb-1 mb-2">
+        <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Add" Color="Color.Success" Href="/user/new">Create</MudButton>
+    </div>
+    <MudDataGrid Items="@Users" T="WebAppUser" Dense="true" Bordered="true" Filterable="false" ColumnResizeMode="ResizeMode.Column">
+        <Columns>
+            <TemplateColumn Title="Username" SortBy="@(x => x.Username)">
+                <CellTemplate>
+                    <a href="/user/@context.Item.Id">@context.Item.Username</a>
+                </CellTemplate>
+            </TemplateColumn>
+            <TemplateColumn Title="Name" SortBy="@(x => x.Name)">
+                <CellTemplate>
+                    @context.Item.Name
+                </CellTemplate>
+            </TemplateColumn>
+            <TemplateColumn Title="Admin" SortBy="@(x => x.IsAdmin)">
+                <CellTemplate>
+                    @if (@context.Item.IsAdmin)
+                    {
+                        @("Yes")
+                    }
+                    else
+                    {
+                        @("No")
+                    }
+                </CellTemplate>
+            </TemplateColumn>
+        </Columns>
+        <PagerContent>
+            <MudDataGridPager T="WebAppUser" />
+        </PagerContent>
+    </MudDataGrid>
+</MudContainer>
+
+@code {
+    bool isLoading = true;
+
+    List<WebAppUser> Users = new List<WebAppUser>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        Users = _WebAppUserManager.Users;
+
+        isLoading = false;
+    }
+}

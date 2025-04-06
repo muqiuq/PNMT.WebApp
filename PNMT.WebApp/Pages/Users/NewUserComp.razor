@@ -1,0 +1,89 @@
+﻿@page "/user/new"
+@attribute [Authorize]
+@using System.ComponentModel.DataAnnotations
+@using PNMT.ApiClient.Data;
+@using PNMT.WebApp.Authentification
+@using PNMT.WebApp.Components
+@using PNMT.WebApp.Models.Forms;
+@using PNMT.WebApp.Pages.Hosts;
+@using PNMTD.Lib.Helper;
+@using PNMTD.Lib.Models.Enum
+@using PNMTD.Lib.Models.Poco;
+@using PNMTD.Models.Poco;
+@inject NavigationManager navigationManager
+@inject WebAppUserManager _WebAppUserManager
+@inject ISnackbar Snackbar
+
+
+<MudContainer>
+<MudGrid>
+    <MudItem xs="12">
+        <BigCardComp Title="New User">
+            <EditForm EditContext="editContext" OnValidSubmit="@HandleValidSubmit" OnInvalidSubmit="@InvalidSubmit">
+                <DataAnnotationsValidator />
+                @if (!ValidForm)
+                    {
+                        <MudAlert Severity="Severity.Error" Dense="true" Class="my-2"><ValidationSummary /></MudAlert>
+                    }
+
+                    <MudStack>
+                        <MudTextField @bind-Value="newUserForm.Username" Label="Username" @onkeydown="ResetValidation" />
+                        <MudTextField @bind-Value="newUserForm.Name" Label="Name" @onkeydown="ResetValidation" />
+                        <MudCheckBox @bind-Checked="newUserForm.IsAdmin" Label="Is Admin" Class="my-2" />
+                        <MudTextField @bind-Value="newUserForm.Password" Label="Password" InputType="InputType.Password" @onkeydown="ResetValidation" />
+                        <MudTextField @bind-Value="newUserForm.RepeatPassword" Label="Repeat Password" InputType="InputType.Password" @onkeydown="ResetValidation" />
+                        <MudButton ButtonType="ButtonType.Submit" StartIcon="@Icons.Material.Filled.PersonAdd" Color="Color.Primary">Create</MudButton>
+                    </MudStack>
+                </EditForm>
+            </BigCardComp>
+
+        </MudItem>
+    </MudGrid>
+</MudContainer>
+
+@code {
+    private NewUserForm newUserForm = new();
+    private EditContext editContext;
+    private ValidationMessageStore messageStore;
+
+    bool ValidForm = true;
+
+    protected override void OnInitialized()
+    {
+        editContext = new EditContext(newUserForm);
+        messageStore = new ValidationMessageStore(editContext);
+    }
+
+    private void HandleValidSubmit()
+    {
+        messageStore.Clear();
+        ValidForm = true;
+
+        var user = WebAppUser.New(newUserForm.Name, 
+            newUserForm.Username, 
+            newUserForm.Password, 
+            newUserForm.IsAdmin);
+
+        _WebAppUserManager.AddOrUpdateUser(user);
+        _WebAppUserManager.Save();
+
+        newUserForm = new();
+        editContext = new EditContext(newUserForm);
+        messageStore = new ValidationMessageStore(editContext);
+        Snackbar.Add("New user created successfully!", Severity.Success);
+        navigationManager.NavigateTo($"/user/{user.Id}");
+    }
+
+    private void InvalidSubmit()
+    {
+        ValidForm = false;
+    }
+
+    private void ResetValidation()
+    {
+        messageStore.Clear();
+        ValidForm = true;
+        editContext.NotifyValidationStateChanged();
+    }
+}
+
