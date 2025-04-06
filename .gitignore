@@ -363,3 +363,4 @@ MigrationBackup/
 FodyWeavers.xsd
 
 PNMT.WebApp/users.json
+/PNMT.WebApp/token.txt
