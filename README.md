@@ -1,6 +1,6 @@
 # PNMT.WebApp
 
-![build and test](https://github.com/muqiuq/PNMTD/actions/workflows/dotnet.yml/badge.svg) ![push to azure](https://github.com/muqiuq/PNMTD/actions/workflows/push.yml/badge.svg)
+![build and test](https://github.com/muqiuq/PNMTD/actions/workflows/dotnet.yml/badge.svg) [![Docker](https://img.shields.io/docker/pulls/uisach/pnmt.webapp?label=Docker&style=flat)](https://hub.docker.com/r/uisach/pnmt.webapp/builds)
 
 Web Frontend for Personal Network Monitoring Tool. 
 
