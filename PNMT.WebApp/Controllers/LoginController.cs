@@ -32,10 +32,12 @@ namespace PNMT.WebApp.Controllers
             }
             logger.LogInformation($"Loggin successfull for {username} from {HttpContext.Connection.RemoteIpAddress}");
 
+            var user = userManager.GetByUsername(username);
+
             var claims = new List<Claim>
         {
             new Claim(ClaimTypes.Name, username),
-            new Claim(ClaimTypes.Role, "User")
+            new Claim(ClaimTypes.Role, user.GetRole()),
         };
 
             var claimsIdentity = new ClaimsIdentity(

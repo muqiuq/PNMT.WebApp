@@ -1,5 +1,5 @@
 ﻿@page "/user/{Id:guid}"
-@attribute [Authorize]
+@attribute [Authorize(Policy = "Admin")]
 @using System.ComponentModel.DataAnnotations
 @using PNMT.ApiClient.Data;
 @using PNMT.WebApp.Authentification
@@ -14,8 +14,6 @@
 @inject WebAppUserManager _WebAppUserManager
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
-
-
 
 <MudContainer>
     <MudGrid>
@@ -95,7 +93,7 @@
 
     private async Task DeleteUser(MouseEventArgs arg)
     {
-        if (_WebAppUserManager.NumberOfAdmins() == 1)
+        if (_WebAppUserManager.NumberOfAdmins() == 1 && user.IsAdmin)
         {
             Snackbar.Add("Cannot delete last admin.", Severity.Error);
             return;

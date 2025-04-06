@@ -1,5 +1,5 @@
 ﻿@page "/users"
-@attribute [Authorize]
+@attribute [Authorize(Policy = "Admin")]
 @using PNMT.ApiClient.Data;
 @using PNMT.WebApp.Authentification
 @using PNMT.WebApp.Models.Forms;

@@ -1,5 +1,5 @@
 ﻿@page "/user/new"
-@attribute [Authorize]
+@attribute [Authorize(Policy ="Admin")]
 @using System.ComponentModel.DataAnnotations
 @using PNMT.ApiClient.Data;
 @using PNMT.WebApp.Authentification
@@ -58,6 +58,12 @@
     {
         messageStore.Clear();
         ValidForm = true;
+
+        if (_WebAppUserManager.GetByUsername(newUserForm.Username) != null)
+        {
+            messageStore.Add(() => newUserForm.Username, "Username already taken");
+            return;
+        }
 
         var user = WebAppUser.New(newUserForm.Name, 
             newUserForm.Username, 

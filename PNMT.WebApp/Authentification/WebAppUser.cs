@@ -59,5 +59,10 @@ namespace PNMT.WebApp.Authentification
       return hashed == PasswordHash;
     }
 
+    public string GetRole()
+    {
+        if (IsAdmin) return "Admin";
+        return "User";
+    }
   }
 }

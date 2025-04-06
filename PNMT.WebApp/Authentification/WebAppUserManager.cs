@@ -95,5 +95,10 @@ namespace PNMT.WebApp.Authentification
         {
             return Users.Remove(GetUserById(id));
         }
+
+        public WebAppUser? GetByUsername(string username)
+        {
+            return Users.SingleOrDefault(u => u.Username == username);
+        }
     }
 }

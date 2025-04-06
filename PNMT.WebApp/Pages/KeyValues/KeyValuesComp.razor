@@ -1,5 +1,5 @@
 ﻿@page "/keyvalues"
-@attribute [Authorize]
+@attribute [Authorize(Policy = "Admin")]
 @using PNMT.ApiClient.Data;
 @using PNMT.WebApp.Components;
 @using PNMT.WebApp.Models.Forms;

@@ -90,7 +90,10 @@ namespace PNMT.WebApp
 
                     options.ExpireTimeSpan = TimeSpan.FromDays(7);
                 });
-            builder.Services.AddAuthorization();
+            builder.Services.AddAuthorization(options =>
+            {
+                options.AddPolicy("Admin", policy => policy.RequireRole("Admin"));
+            });
 
             builder.Services.AddSingleton<WebAppUserManager>(new WebAppUserManager());
 
