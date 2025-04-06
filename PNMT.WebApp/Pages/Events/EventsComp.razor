@@ -1,0 +1,74 @@
+﻿@page "/events"
+@attribute [Authorize]
+@using PNMT.ApiClient.Data;
+@using PNMT.WebApp.Models.Forms;
+@using PNMTD.Lib.Helper;
+@using PNMTD.Lib.Models.Poco;
+@inject NavigationManager navigationManager
+@inject PNMTDApi _PNTMDApi
+
+<MudOverlay Visible="isLoading" DarkBackground="true" Absolute="true">
+    <MudProgressCircular Color="Color.Secondary" Indeterminate="true" />
+</MudOverlay>
+
+<MudContainer>
+    <MudGrid>
+        <MudItem xs="12">
+            <MudPaper Class="pa-3 mb-1 mt-4">
+                <div class="d-flex">
+                    <div class="d-inline"><h1><MudIcon Icon="@Icons.Material.Filled.Event" Class="icon-base-more-space"></MudIcon></h1></div>
+                    <div class="d-inline">
+                        <h1>
+                            Events
+                        </h1>
+                    </div>
+                </div>
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+    <MudDataGrid Items="@Events" T="EventEntityPoco" Dense="true" Bordered="true" Filterable="true" RowsPerPage="50" ColumnResizeMode="ResizeMode.Column">
+        <Columns>
+            <TemplateColumn Title="#" Filterable="false" SortBy="@(x => x.IsSuccess)">
+                <CellTemplate>
+                    @if (@context.Item.IsSuccess)
+                    {
+                        <MudIcon Icon="@Icons.Material.Filled.CheckBox" Color="Color.Success"></MudIcon>
+                    }
+                    else
+                    {
+                        <MudIcon Icon="@Icons.Material.Filled.Error" Color="Color.Error"></MudIcon>
+                    }
+                </CellTemplate>
+            </TemplateColumn>
+            <PropertyColumn Property="h => h.StatusCode" />
+            <PropertyColumn Property="h => h.Created" />
+            <TemplateColumn Title="Name" SortBy="@(x => x.HostName)">
+                <CellTemplate>
+                    <a href="/host/@context.Item.HostId">@context.Item.HostName</a>
+                </CellTemplate>
+            </TemplateColumn>
+            <TemplateColumn Title="Name" SortBy="@(x => x.SensorName)">
+                <CellTemplate>
+                    <a href="/sensor/@context.Item.SensorId">@context.Item.SensorName</a>
+                </CellTemplate>
+            </TemplateColumn>
+            <PropertyColumn Property="h => h.Message" />
+        </Columns>
+        <PagerContent>
+            <MudDataGridPager T="EventEntityPoco" />
+        </PagerContent>
+    </MudDataGrid>
+</MudContainer>
+
+@code {
+    bool isLoading = true;
+
+    List<EventEntityPoco> Events = new List<EventEntityPoco>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        Events = await _PNTMDApi.Events.GetLastEvents();
+
+        isLoading = false;
+    }
+}
